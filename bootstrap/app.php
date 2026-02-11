@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\CheckAccountRole;
+use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\ValidateApiRequest;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'validate.api' => ValidateApiRequest::class,
+            'account.role' => CheckAccountRole::class,
+            'permission' => CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
