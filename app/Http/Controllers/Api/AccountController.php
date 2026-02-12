@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class AccountController extends Controller
 {
@@ -29,12 +28,16 @@ class AccountController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'role' => ['required', Rule::in(Account::getRoles())],
+            'avatar' => 'nullable|string',
+            'bio' => 'nullable|string',
+            'address' => 'nullable|string',
         ]);
 
         $account = $request->user()->accounts()->create([
             'name' => $request->name,
-            'role' => $request->role,
+            'avatar' => $request->avatar,
+            'bio' => $request->bio,
+            'address' => $request->address,
             'is_active' => true,
         ]);
 
@@ -65,11 +68,13 @@ class AccountController extends Controller
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
-            'role' => ['sometimes', Rule::in(Account::getRoles())],
+            'avatar' => 'nullable|string',
+            'bio' => 'nullable|string',
+            'address' => 'nullable|string',
             'is_active' => 'sometimes|boolean',
         ]);
 
-        $account->update($request->only(['name', 'role', 'is_active']));
+        $account->update($request->only(['name', 'avatar', 'bio', 'address', 'is_active']));
 
         return response()->json([
             'message' => 'Account updated successfully',

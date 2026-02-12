@@ -16,7 +16,6 @@ class Account extends Model
         'bio',
         'status',
         'address',
-        'role',
         'is_active',
     ];
 
@@ -25,40 +24,33 @@ class Account extends Model
     ];
 
     /**
-     * Available roles
+     * Check if account has a specific role by name
      */
-    const ROLE_ADMIN = 'admin';
-    const ROLE_MANAGER = 'manager';
-    const ROLE_USER = 'user';
-    const ROLE_VIEWER = 'viewer';
-
-    /**
-     * Get all available roles
-     */
-    public static function getRoles(): array
+    public function hasRole(string $roleName): bool
     {
-        return [
-            self::ROLE_ADMIN,
-            self::ROLE_MANAGER,
-            self::ROLE_USER,
-            self::ROLE_VIEWER,
-        ];
+        return $this->roles()->where('name', $roleName)->exists();
     }
 
     /**
-     * Check if account has a specific role
+     * Check if account has any of the given roles by name
      */
-    public function hasRole(string $role): bool
+    public function hasAnyRole(array $roleNames): bool
     {
-        return $this->role === $role;
+        return $this->roles()->whereIn('name', $roleNames)->exists();
     }
 
     /**
-     * Check if account has any of the given roles
+     * Check if account has all of the given roles by name
      */
-    public function hasAnyRole(array $roles): bool
+    public function hasAllRoles(array $roleNames): bool
     {
-        return in_array($this->role, $roles);
+        $accountRoles = $this->roles->pluck('name')->toArray();
+        foreach ($roleNames as $roleName) {
+            if (!in_array($roleName, $accountRoles)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

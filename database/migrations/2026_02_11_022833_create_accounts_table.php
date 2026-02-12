@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('address')->nullable();
             $table->string('bio')->nullable();
-            $table->enum('role', ['admin', 'manager', 'user', 'viewer'])->default('user');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
