@@ -1,0 +1,65 @@
+services:
+  # Laravel API Web Service
+  - type: web
+    name: laravel-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon # or your preferred region
+    plan: free # or starter, standard, pro, etc.
+    branch: main # or your deployment branch
+    healthCheckPath: /api/test
+    envVars:
+      - key: APP_NAME
+        value: Laravel API
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        sync: false
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stack
+      - key: LOG_LEVEL
+        value: error
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: laravel-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: laravel-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: laravel-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: laravel-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: laravel-db
+          property: password
+      - key: CACHE_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SESSION_DRIVER
+        value: file
+      - key: SESSION_LIFETIME
+        value: 120
+      - key: SANCTUM_TOKEN_EXPIRATION
+        value: 60
+
+  # PostgreSQL Database
+databases:
+  - name: laravel-db
+    databaseName: laravel_production
+    user: laravel_user
+    plan: free # or starter
+    region: oregon

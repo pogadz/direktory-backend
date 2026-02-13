@@ -391,13 +391,46 @@ backend/
 └── README.md                              # This file
 ```
 
+## 🐳 Docker Deployment
+
+### Local Development with Docker
+
+```bash
+# Quick setup
+./docker-local.sh
+
+# Or manual setup
+docker-compose up -d
+docker-compose exec app composer install
+docker-compose exec app php artisan migrate --seed
+```
+
+Access at: http://localhost:8000
+
+### Deploy to Render
+
+See complete guide: [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
+
+**Quick steps:**
+1. Push code to Git repository
+2. Connect to Render dashboard
+3. Render auto-detects `render.yaml`
+4. Deploy automatically!
+
+**Files:**
+- `Dockerfile` - Production Docker image
+- `docker-compose.yml` - Local development
+- `render.yaml` - Render configuration
+- `docker-entrypoint.sh` - Startup script
+
 ## 🎓 Learn More
 
 - **Getting Started:** Read [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md)
 - **Seeding Data:** Read [SEEDING_GUIDE.md](SEEDING_GUIDE.md)
 - **API Usage:** Check [ROLES_PERMISSIONS_GUIDE.md](ROLES_PERMISSIONS_GUIDE.md) and [ACCOUNTS_GUIDE.md](ACCOUNTS_GUIDE.md)
 - **Test Accounts:** See [TEST_ACCOUNTS.md](TEST_ACCOUNTS.md)
+- **Render Deployment:** See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
 
 ---
 
-**Built with Laravel 11** | **Powered by Laravel Sanctum** 🚀
+**Built with Laravel 11** | **Powered by Laravel Sanctum** | **Deploy Ready** 🚀
