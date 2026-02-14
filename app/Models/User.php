@@ -19,7 +19,8 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'firstname',
+        'lastname',
         'email',
         'password',
     ];
@@ -45,5 +46,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relationship: User has many Accounts
+     */
+    public function accounts()
+    {
+        return $this->hasMany(Account::class);
+    }
+
+    /**
+     * Get active accounts for the user
+     */
+    public function activeAccounts()
+    {
+        return $this->hasMany(Account::class)->where('is_active', true);
+    }
+
+    /**
+     * Get the current active account from session/token
+     */
+    public function currentAccount()
+    {
+        return $this->belongsTo(Account::class, 'current_account_id');
     }
 }
