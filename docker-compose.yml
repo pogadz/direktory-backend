@@ -8,10 +8,11 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:80"        # host port 8000 → container 80
+      - "${APP_PORT:-8000}:80"
     volumes:
       - .:/var/www/html
       - ./storage:/var/www/html/storage
+      - vendor:/var/www/html/vendor
     env_file:
       - .env
     depends_on:
@@ -24,11 +25,12 @@ services:
     container_name: direktory-db
     image: postgres:15-alpine
     ports:
-      - "5433:5432"       # host 5433 → container 5432
+      # - "${DB_PORT:-5433}:5432"
+      - "5433:5432"
     environment:
-      - POSTGRES_DB=direktory_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=${DB_DATABASE:-direktory}
+      - POSTGRES_USER=${DB_USERNAME:-username}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -40,3 +42,4 @@ networks:
 
 volumes:
   postgres_data:
+  vendor:
