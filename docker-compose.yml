@@ -3,18 +3,17 @@ version: '3.8'
 services:
   # Laravel Application
   app:
+    container_name: direktory-app
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${APP_PORT:-8000}:80"
+      - "8000:80"        # host port 8000 → container 80
     volumes:
       - .:/var/www/html
       - ./storage:/var/www/html/storage
     env_file:
       - .env
-    environment:
-      - DB_HOST=db
     depends_on:
       - db
     networks:
@@ -22,13 +21,14 @@ services:
 
   # PostgreSQL Database
   db:
+    container_name: direktory-db
     image: postgres:15-alpine
     ports:
-      - "${DB_PORT:-5433}:5432"
+      - "5433:5432"       # host 5433 → container 5432
     environment:
-      - POSTGRES_DB=${DB_DATABASE:-laravel}
-      - POSTGRES_USER=${DB_USERNAME:-laravel}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+      - POSTGRES_DB=direktory_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
