@@ -15,37 +15,7 @@ A secure Laravel 12 API backend with token-based authentication, multi-account s
 - ✅ **Input Validation** - Comprehensive request validation
 - 🔄 **Token Management** - Login, logout, refresh, and account switching
 
-## Requirements
-
-- PHP 8.2 or higher
-- Composer
-- MySQL/PostgreSQL/SQLite
-- Node.js & NPM (for asset compilation)
-
-## Installation
-
-### 1. Clone and Install Dependencies
-
-```bash
-# Install PHP dependencies
-composer install
-
-# Install Node dependencies
-npm install
-```
-
-### 2. Environment Configuration
-
-```bash
-# Copy the example environment file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-```
-
-### 3. Configure Database
-
+## 🐳 Starting Local Server with Docker
 Edit your `.env` file with your database credentials:
 
 ```env
@@ -55,41 +25,24 @@ DB_PORT=5432
 DB_DATABASE=your_database_name
 DB_USERNAME=your_database_user
 DB_PASSWORD=your_database_password
-```
 
-### 4. Run Migrations & Seed Database
+# add this if you want to seed an admin account
+SEEDER_ADMIN_EMAIL=admin@example.com
+SEEDER_ADMIN_PASSWORD=your_password_here
+```
 
 ```bash
-# Run database migrations and seed with test data
-php artisan migrate:fresh --seed
+# Quick setup (add --no-cache argument if you dont to build without cache)
+docker compose build
 
-# This creates:
-# - 18 permissions across 5 categories
-# - 5 roles (super-admin, admin, manager, editor, viewer)
-# - 1 admin user (admin@example.com / testing123)
-# - 10 normal users with various roles
+# And then run this and it should run the application
+docker compose up -d
+
+# If you want to seed admin data you can run this
+docker exec direktory-app php artisan db:seed --class=AdminUserSeeder
 ```
 
-### 5. Start Development Server
-
-```bash
-# Start Laravel development server
-php artisan serve
-
-# Server will start at: http://127.0.0.1:8000
-```
-
-## 📚 Complete Documentation
-
-| Document | Description |
-|----------|-------------|
-| [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md) | Complete setup guide with examples |
-| [SEEDING_GUIDE.md](SEEDING_GUIDE.md) | How to seed test data |
-| [TEST_ACCOUNTS.md](TEST_ACCOUNTS.md) | All test account credentials (11 users) |
-| [ACCOUNTS_GUIDE.md](ACCOUNTS_GUIDE.md) | Multi-account system API reference |
-| [ROLES_PERMISSIONS_GUIDE.md](ROLES_PERMISSIONS_GUIDE.md) | Dynamic roles & permissions API |
-
-## 🚀 Quick Start Guide
+Access at: http://localhost:8000.
 
 ### Test the System
 
@@ -197,81 +150,6 @@ The `ValidateApiRequest` middleware is **enabled** on all API routes. It provide
 To disable or modify, see [app/Http/Middleware/ValidateApiRequest.php](app/Http/Middleware/ValidateApiRequest.php).
 
 
-## Testing
-
-```bash
-# Run all tests
-php artisan test
-
-# Run specific test file
-php artisan test tests/Feature/AuthTest.php
-```
-
-## Development
-
-### Code Formatting
-
-```bash
-# Format code with Laravel Pint
-./vendor/bin/pint
-```
-
-### Database Seeding
-
-```bash
-# Run seeders
-php artisan db:seed
-
-# Fresh migration with seeding
-php artisan migrate:fresh --seed
-```
-
-### Clear Caches
-
-```bash
-# Clear application cache
-php artisan cache:clear
-
-# Clear route cache
-php artisan route:clear
-
-# Clear config cache
-php artisan config:clear
-
-# Clear all caches
-php artisan optimize:clear
-```
-
-## Troubleshooting
-
-### "419 Page Expired" Error
-Run: `php artisan config:clear`
-
-### "SQLSTATE Connection Refused"
-Check database credentials in `.env` and ensure database server is running.
-
-### "Class not found" Error
-Run: `composer dump-autoload`
-
-### CORS Issues
-Update `config/cors.php` with your frontend domain.
-
-### Rate Limit Issues
-Adjust rate limits in `routes/api.php` throttle middleware.
-
-## 📊 Default Test Accounts
-
-**All passwords:** `testing123`
-
-| Email | Role | Permissions |
-|-------|------|-------------|
-| admin@example.com | super-admin | ALL |
-| john.doe@example.com | manager | Content + Reports |
-| jane.smith@example.com | editor | Content Edit |
-| michael.johnson@example.com | viewer | Read Only |
-
-See [TEST_ACCOUNTS.md](TEST_ACCOUNTS.md) for all 11 test accounts.
-
 ## 🎯 Default Permissions
 
 **5 Categories | 18 Permissions:**
@@ -328,8 +206,6 @@ POST   /api/accounts/{id}/roles/revoke       # Remove roles
 POST   /api/accounts/{id}/roles/sync         # Sync roles
 GET    /api/accounts/{id}/roles/permissions  # Get all permissions
 ```
-
-See complete API documentation in [ROLES_PERMISSIONS_GUIDE.md](ROLES_PERMISSIONS_GUIDE.md).
 
 ## 🛡️ Middleware Usage
 
@@ -391,46 +267,16 @@ backend/
 └── README.md                              # This file
 ```
 
-## 🐳 Docker Deployment
-
-### Local Development with Docker
+## Testing
 
 ```bash
-# Quick setup
-./docker-local.sh
+# Run all tests
+php artisan test
 
-# Or manual setup
-docker-compose up -d
-docker-compose exec app composer install
-docker-compose exec app php artisan migrate --seed
+# Run specific test file
+php artisan test tests/Feature/AuthTest.php
 ```
-
-Access at: http://localhost:8000
-
-### Deploy to Render
-
-See complete guide: [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
-
-**Quick steps:**
-1. Push code to Git repository
-2. Connect to Render dashboard
-3. Render auto-detects `render.yaml`
-4. Deploy automatically!
-
-**Files:**
-- `Dockerfile` - Production Docker image
-- `docker-compose.yml` - Local development
-- `render.yaml` - Render configuration
-- `docker-entrypoint.sh` - Startup script
-
-## 🎓 Learn More
-
-- **Getting Started:** Read [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md)
-- **Seeding Data:** Read [SEEDING_GUIDE.md](SEEDING_GUIDE.md)
-- **API Usage:** Check [ROLES_PERMISSIONS_GUIDE.md](ROLES_PERMISSIONS_GUIDE.md) and [ACCOUNTS_GUIDE.md](ACCOUNTS_GUIDE.md)
-- **Test Accounts:** See [TEST_ACCOUNTS.md](TEST_ACCOUNTS.md)
-- **Render Deployment:** See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
 
 ---
 
-**Built with Laravel 11** | **Powered by Laravel Sanctum** | **Deploy Ready** 🚀
+**Built with Laravel 11**

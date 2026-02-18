@@ -16,7 +16,9 @@ class NormalUsersSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::transaction(function () {
+        $password = Hash::make($_ENV['SEEDER_PASSWORD'] ?? '');
+
+        DB::transaction(function () use ($password) {
             // Get roles for assignment
             $managerRole = Role::where('name', 'manager')->first();
             $editorRole = Role::where('name', 'editor')->first();
@@ -113,7 +115,7 @@ class NormalUsersSeeder extends Seeder
                     [
                         'firstname' => $userData['firstname'],
                         'lastname' => $userData['lastname'],
-                        'password' => Hash::make('testing123'),
+                        'password' => $password,
                     ]
                 );
 

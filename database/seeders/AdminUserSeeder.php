@@ -16,14 +16,17 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::transaction(function () {
+        $email = $_ENV['SEEDER_ADMIN_EMAIL'] ?? 'admin@example.com';
+        $password = $_ENV['SEEDER_ADMIN_PASSWORD'] ?? 'testing123';
+
+        DB::transaction(function () use ($email, $password) {
             // Create Admin User
             $adminUser = User::firstOrCreate(
-                ['email' => 'admin@example.com'],
+                ['email' => $email],
                 [
                     'firstname' => 'Admin',
                     'lastname' => 'User',
-                    'password' => Hash::make('testing123'),
+                    'password' => Hash::make($password),
                 ]
             );
 
@@ -46,8 +49,8 @@ class AdminUserSeeder extends Seeder
             }
 
             $this->command->info('✅ Admin user created successfully!');
-            $this->command->info('Email: admin@example.com');
-            $this->command->info('Password: testing123');
+            $this->command->info('Email: ' . $email);
+            $this->command->info('Password: ' . $password);
             $this->command->info('Account ID: ' . $adminAccount->id);
             $this->command->info('Role: super-admin (all permissions)');
         });
