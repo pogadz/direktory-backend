@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Profile extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
+        'job_category_id',
         'name',
         'avatar',
         'bio',
@@ -139,5 +141,10 @@ class Profile extends Model
     public function syncRoles(array $roleIds): void
     {
         $this->roles()->sync($roleIds);
+    }
+
+    public function jobCategory()
+    {
+        return $this->belongsTo(JobCategory::class);
     }
 }

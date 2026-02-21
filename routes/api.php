@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ProfileRoleController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\JobCategoryController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['validate.api', 'throttle:10,1'])->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Job Categories (public read)
+    Route::prefix('job-categories')->group(function () {
+        Route::get('/', [JobCategoryController::class, 'index']);
+        Route::get('/{id}', [JobCategoryController::class, 'show']);
+    });
 
     /**
      * @hideFromAPIDocumentation
@@ -51,8 +58,14 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
     });
 });
 
-// Admin-only routes for managing Roles and Permissions
+// Admin-only routes for managing Job Categories, Roles and Permissions
 Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:manage-roles,manage-permissions'])->group(function () {
+    // Job Category Management
+    Route::prefix('job-categories')->group(function () {
+        Route::post('/', [JobCategoryController::class, 'store']);
+        Route::put('/{id}', [JobCategoryController::class, 'update']);
+        Route::delete('/{id}', [JobCategoryController::class, 'destroy']);
+    });
     // Role Management
     Route::prefix('roles')->group(function () {
         Route::get('/', [RoleController::class, 'index']);
