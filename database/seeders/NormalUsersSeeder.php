@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Account;
+use App\Models\Profile;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -30,7 +30,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'John',
                     'lastname' => 'Doe',
                     'email' => 'john.doe@example.com',
-                    'account_name' => 'John\'s Workspace',
+                    'profile_name' => 'John\'s Workspace',
                     'roles' => [$managerRole?->id],
                     'bio' => 'Content manager',
                 ],
@@ -38,7 +38,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'Jane',
                     'lastname' => 'Smith',
                     'email' => 'jane.smith@example.com',
-                    'account_name' => 'Jane\'s Account',
+                    'profile_name' => 'Jane\'s Profile',
                     'roles' => [$editorRole?->id],
                     'bio' => 'Content editor',
                 ],
@@ -46,7 +46,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'Michael',
                     'lastname' => 'Johnson',
                     'email' => 'michael.johnson@example.com',
-                    'account_name' => 'Michael\'s Workspace',
+                    'profile_name' => 'Michael\'s Workspace',
                     'roles' => [$viewerRole?->id],
                     'bio' => 'Content viewer',
                 ],
@@ -54,7 +54,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'Emily',
                     'lastname' => 'Brown',
                     'email' => 'emily.brown@example.com',
-                    'account_name' => 'Emily\'s Account',
+                    'profile_name' => 'Emily\'s Profile',
                     'roles' => [$editorRole?->id],
                     'bio' => 'Content creator and editor',
                 ],
@@ -62,7 +62,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'David',
                     'lastname' => 'Wilson',
                     'email' => 'david.wilson@example.com',
-                    'account_name' => 'David\'s Workspace',
+                    'profile_name' => 'David\'s Workspace',
                     'roles' => [$managerRole?->id],
                     'bio' => 'Team manager',
                 ],
@@ -70,7 +70,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'Sarah',
                     'lastname' => 'Martinez',
                     'email' => 'sarah.martinez@example.com',
-                    'account_name' => 'Sarah\'s Account',
+                    'profile_name' => 'Sarah\'s Profile',
                     'roles' => [$editorRole?->id],
                     'bio' => 'Blog editor',
                 ],
@@ -78,7 +78,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'James',
                     'lastname' => 'Anderson',
                     'email' => 'james.anderson@example.com',
-                    'account_name' => 'James\'s Workspace',
+                    'profile_name' => 'James\'s Workspace',
                     'roles' => [$viewerRole?->id],
                     'bio' => 'Read-only access',
                 ],
@@ -86,7 +86,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'Lisa',
                     'lastname' => 'Taylor',
                     'email' => 'lisa.taylor@example.com',
-                    'account_name' => 'Lisa\'s Account',
+                    'profile_name' => 'Lisa\'s Profile',
                     'roles' => [$managerRole?->id],
                     'bio' => 'Project manager',
                 ],
@@ -94,7 +94,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'Robert',
                     'lastname' => 'Thomas',
                     'email' => 'robert.thomas@example.com',
-                    'account_name' => 'Robert\'s Workspace',
+                    'profile_name' => 'Robert\'s Workspace',
                     'roles' => [$editorRole?->id],
                     'bio' => 'Content writer',
                 ],
@@ -102,7 +102,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname' => 'Jennifer',
                     'lastname' => 'White',
                     'email' => 'jennifer.white@example.com',
-                    'account_name' => 'Jennifer\'s Account',
+                    'profile_name' => 'Jennifer\'s Profile',
                     'roles' => [$viewerRole?->id],
                     'bio' => 'Guest viewer',
                 ],
@@ -119,11 +119,11 @@ class NormalUsersSeeder extends Seeder
                     ]
                 );
 
-                // Create account for user
-                $account = Account::firstOrCreate(
+                // Create profile for user
+                $profile = Profile::firstOrCreate(
                     [
                         'user_id' => $user->id,
-                        'name' => $userData['account_name'],
+                        'name' => $userData['profile_name'],
                     ],
                     [
                         'is_active' => true,
@@ -131,11 +131,11 @@ class NormalUsersSeeder extends Seeder
                     ]
                 );
 
-                // Assign roles to account
+                // Assign roles to profile
                 if (!empty($userData['roles'])) {
                     $roleIds = array_filter($userData['roles']); // Remove null values
                     if (!empty($roleIds)) {
-                        $account->roles()->syncWithoutDetaching($roleIds);
+                        $profile->roles()->syncWithoutDetaching($roleIds);
                     }
                 }
 

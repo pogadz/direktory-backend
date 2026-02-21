@@ -1,9 +1,6 @@
-# Laravel API Backend with Multi-Account & Dynamic Roles
-
-A secure Laravel 12 API backend with token-based authentication, multi-account support, and dynamic role/permission management.
+# Direktory
 
 ## ✨ Key Features
-
 - 🔐 **Token-Based Authentication** - Secure API authentication using Laravel Sanctum
 - 👥 **Multi-Account System** - Users can create and manage multiple accounts
 - 🎭 **Dynamic Role Management** - Admins can create custom roles with specific permissions
@@ -57,32 +54,19 @@ curl -X POST http://localhost:8000/api/login \
     "password": "testing123"
   }'
 
-# 2. Get your accounts
-curl -X GET http://localhost:8000/api/accounts \
+# 2. Get your profiles
+curl -X GET http://localhost:8000/api/profiles \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Accept: application/json" \
   -H "User-Agent: MyApp/1.0"
 
-# 3. Switch to admin account (get new token!)
-curl -X POST http://localhost:8000/api/accounts/switch \
+# 3. Switch to admin profile (get new token!)
+curl -X POST http://localhost:8000/api/profiles/switch \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -H "User-Agent: MyApp/1.0" \
-  -d '{"account_id": 1}'
-
-# 4. Create a custom role (admin only)
-curl -X POST http://localhost:8000/api/roles \
-  -H "Authorization: Bearer NEW_TOKEN_FROM_SWITCH" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -H "User-Agent: MyApp/1.0" \
-  -d '{
-    "name": "moderator",
-    "display_name": "Moderator",
-    "description": "Content moderation role",
-    "permission_ids": [9, 10, 11]
-  }'
+  -d '{"profile_id": 1}'
 ```
 
 ### API Base URL
@@ -93,18 +77,6 @@ http://127.0.0.1:8000/api
 # Test endpoint
 http://127.0.0.1:8000/api/test
 ```
-
-## 🗂️ System Architecture
-
-```
-User → Multiple Accounts → Multiple Roles → Multiple Permissions
-```
-
-**Example:**
-- John Doe (user)
-  - Work Account → [manager role] → [view/create/edit/delete content, view reports]
-  - Personal Account → [viewer role] → [view content only]
-
 ## Security Features
 
 ### Rate Limiting
@@ -171,40 +143,13 @@ POST   /api/refresh           # Refresh token
 GET    /api/user              # Get user info
 ```
 
-### Account Management
+### Profile Management
 ```
-GET    /api/accounts          # List accounts
-POST   /api/accounts          # Create account
-POST   /api/accounts/switch   # Switch account (get new token!)
-PUT    /api/accounts/{id}     # Update account
-DELETE /api/accounts/{id}     # Delete account
-```
-
-### Role Management (Admin Only)
-```
-GET    /api/roles             # List roles
-POST   /api/roles             # Create role
-PUT    /api/roles/{id}        # Update role
-DELETE /api/roles/{id}        # Delete role
-POST   /api/roles/{id}/permissions/sync    # Assign permissions
-```
-
-### Permission Management (Admin Only)
-```
-GET    /api/permissions                # List permissions
-GET    /api/permissions/by-category    # Group by category
-POST   /api/permissions                # Create permission
-PUT    /api/permissions/{id}           # Update permission
-DELETE /api/permissions/{id}           # Delete permission
-```
-
-### Account-Role Assignment
-```
-GET    /api/accounts/{id}/roles              # Get roles
-POST   /api/accounts/{id}/roles/assign       # Assign roles
-POST   /api/accounts/{id}/roles/revoke       # Remove roles
-POST   /api/accounts/{id}/roles/sync         # Sync roles
-GET    /api/accounts/{id}/roles/permissions  # Get all permissions
+GET    /api/profiles          # List profiles
+POST   /api/profiles          # Create profile
+POST   /api/profiles/switch   # Switch profile (get new token!)
+PUT    /api/profiles/{id}     # Update profile
+DELETE /api/profiles/{id}     # Delete profile
 ```
 
 ## 🛡️ Middleware Usage
@@ -234,17 +179,17 @@ backend/
 │   ├── Http/
 │   │   ├── Controllers/Api/
 │   │   │   ├── AuthController.php          # Authentication
-│   │   │   ├── AccountController.php       # Account CRUD
-│   │   │   ├── AccountRoleController.php   # Account-role management
+│   │   │   ├── ProfileController.php       # Profile CRUD
+│   │   │   ├── ProfileRoleController.php   # Profile-role management
 │   │   │   ├── RoleController.php          # Role CRUD (admin)
 │   │   │   └── PermissionController.php    # Permission CRUD (admin)
 │   │   └── Middleware/
 │   │       ├── ValidateApiRequest.php      # API validation
-│   │       ├── CheckAccountRole.php        # Role middleware
+│   │       ├── CheckProfileRole.php        # Role middleware
 │   │       └── CheckPermission.php         # Permission middleware
 │   └── Models/
-│       ├── User.php                        # User with accounts
-│       ├── Account.php                     # Account with roles
+│       ├── User.php                        # User with profiles
+│       ├── Profile.php                     # Profile with roles
 │       ├── Role.php                        # Role with permissions
 │       └── Permission.php                  # Permission model
 ├── config/
@@ -259,13 +204,16 @@ backend/
 ├── routes/
 │   ├── api.php                            # All API routes
 │   └── web.php                            # Web routes
-├── SETUP_INSTRUCTIONS.md                  # Setup guide
-├── SEEDING_GUIDE.md                       # Seeding guide
-├── TEST_ACCOUNTS.md                       # Test credentials
-├── ACCOUNTS_GUIDE.md                      # Account API docs
-├── ROLES_PERMISSIONS_GUIDE.md             # Role/Permission API docs
 └── README.md                              # This file
 ```
+
+## API DOCS
+
+Please run this command.
+```
+php artisan scribe:generate
+```
+And you can acccess it in http://localhost:8000/docs 
 
 ## Testing
 

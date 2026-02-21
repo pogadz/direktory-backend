@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Account extends Model
+class Profile extends Model
 {
     use HasFactory;
 
@@ -24,7 +24,7 @@ class Account extends Model
     ];
 
     /**
-     * Check if account has a specific role by name
+     * Check if profile has a specific role by name
      */
     public function hasRole(string $roleName): bool
     {
@@ -32,7 +32,7 @@ class Account extends Model
     }
 
     /**
-     * Check if account has any of the given roles by name
+     * Check if profile has any of the given roles by name
      */
     public function hasAnyRole(array $roleNames): bool
     {
@@ -40,13 +40,13 @@ class Account extends Model
     }
 
     /**
-     * Check if account has all of the given roles by name
+     * Check if profile has all of the given roles by name
      */
     public function hasAllRoles(array $roleNames): bool
     {
-        $accountRoles = $this->roles->pluck('name')->toArray();
+        $profileRoles = $this->roles->pluck('name')->toArray();
         foreach ($roleNames as $roleName) {
-            if (!in_array($roleName, $accountRoles)) {
+            if (!in_array($roleName, $profileRoles)) {
                 return false;
             }
         }
@@ -54,7 +54,7 @@ class Account extends Model
     }
 
     /**
-     * Relationship: Account belongs to User
+     * Relationship: Profile belongs to User
      */
     public function user()
     {
@@ -62,16 +62,16 @@ class Account extends Model
     }
 
     /**
-     * Relationship: Account belongs to many Roles (new system)
+     * Relationship: Profile belongs to many Roles
      */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'account_role')
+        return $this->belongsToMany(Role::class, 'profile_role')
             ->withTimestamps();
     }
 
     /**
-     * Check if account has a specific permission through roles
+     * Check if profile has a specific permission through roles
      */
     public function hasPermission(string $permissionName): bool
     {
@@ -83,7 +83,7 @@ class Account extends Model
     }
 
     /**
-     * Check if account has any of the given permissions
+     * Check if profile has any of the given permissions
      */
     public function hasAnyPermission(array $permissionNames): bool
     {
@@ -95,7 +95,7 @@ class Account extends Model
     }
 
     /**
-     * Check if account has all of the given permissions
+     * Check if profile has all of the given permissions
      */
     public function hasAllPermissions(array $permissionNames): bool
     {
@@ -118,7 +118,7 @@ class Account extends Model
     }
 
     /**
-     * Assign roles to this account
+     * Assign roles to this profile
      */
     public function assignRoles(array $roleIds): void
     {
@@ -126,7 +126,7 @@ class Account extends Model
     }
 
     /**
-     * Remove roles from this account
+     * Remove roles from this profile
      */
     public function removeRoles(array $roleIds): void
     {

@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
+     * @group Auth
      * Register a new user
      */
     public function register(Request $request)
@@ -41,6 +42,7 @@ class AuthController extends Controller
     }
 
     /**
+     * @group Auth
      * Login user and create token
      */
     public function login(Request $request)
@@ -70,6 +72,7 @@ class AuthController extends Controller
     }
 
     /**
+     * @group Auth
      * Logout user (Revoke token)
      */
     public function logout(Request $request)
@@ -82,6 +85,7 @@ class AuthController extends Controller
     }
 
     /**
+     * @group Auth
      * Get authenticated user
      */
     public function user(Request $request)
@@ -92,6 +96,7 @@ class AuthController extends Controller
     }
 
     /**
+     * @group Auth
      * Refresh the user's token
      */
     public function refresh(Request $request)
@@ -113,6 +118,7 @@ class AuthController extends Controller
     }
 
     /**
+     * @group Auth
      * Get all active tokens for the authenticated user (Debug)
      */
     public function tokens(Request $request)
@@ -127,6 +133,7 @@ class AuthController extends Controller
     }
 
     /**
+     * @group Auth
      * Logout from all devices (revoke all tokens)
      */
     public function logoutAll(Request $request)

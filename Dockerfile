@@ -1,10 +1,14 @@
-# Use official PHP image with Apache
+# Base Image
 FROM php:8.4-apache
 
-# Set working directory
+# Build argument
+ARG APP_ENV=production
+ENV APP_ENV=${APP_ENV}
+
+# Working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
+# System dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -17,52 +21,57 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     nodejs \
     npm \
+    wait-for-it \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
+# PHP extensions
 RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy composer files first for caching
-COPY composer.json composer.lock /var/www/html/
+# Copy composer files
+COPY composer.json composer.lock ./
 
-# Install PHP dependencies without scripts (avoid Laravel boot issues)
-RUN composer install --no-dev --no-scripts --no-autoloader --no-interaction
+# Install PHP dependencies based on environment
+RUN if [ "$APP_ENV" = "local" ]; then \
+        composer install --no-scripts --no-autoloader --no-interaction; \
+    else \
+        composer install --no-dev --no-scripts --no-autoloader --no-interaction; \
+    fi
 
-# Copy all application files
-COPY . /var/www/html
+# Copy application files
+COPY . .
 
-# Complete Composer installation
-RUN composer dump-autoload --optimize --no-dev
+# Autoload
+RUN if [ "$APP_ENV" = "local" ]; then \
+        composer dump-autoload --optimize; \
+    else \
+        composer dump-autoload --optimize --no-dev; \
+    fi && \
+    rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
 
-# Set permissions
+# Permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+    && chmod -R 755 storage \
+    && chmod -R 755 bootstrap/cache
 
-# Configure Apache
+# Apache
 RUN a2enmod rewrite headers
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Update Apache document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Copy wait-for-it script into image and make it executable
-COPY wait-for-it.sh /usr/local/bin/wait-for-it
-RUN chmod +x /usr/local/bin/wait-for-it
-
-# Copy custom entrypoint script
+# Entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Expose Apache port
+# Expose port
 EXPOSE 80
 
-# Set entrypoint and default command
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]

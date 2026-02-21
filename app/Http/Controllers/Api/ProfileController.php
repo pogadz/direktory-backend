@@ -3,26 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Account;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 
-class AccountController extends Controller
+class ProfileController extends Controller
 {
     /**
-     * Get all accounts for the authenticated user
+     * @group Profile
+     * Get all profiles for the authenticated user
      */
     public function index(Request $request)
     {
-        $accounts = $request->user()->accounts()->get();
+        $profiles = $request->user()->profiles()->get();
 
         return response()->json([
-            'accounts' => $accounts,
-            'total' => $accounts->count(),
+            'profiles' => $profiles,
+            'total' => $profiles->count(),
         ]);
     }
 
     /**
-     * Create a new account for the authenticated user
+     * @group Profile
+     * Create a new profile for the authenticated user
      */
     public function store(Request $request)
     {
@@ -33,7 +35,7 @@ class AccountController extends Controller
             'address' => 'nullable|string',
         ]);
 
-        $account = $request->user()->accounts()->create([
+        $profile = $request->user()->profiles()->create([
             'name' => $request->name,
             'avatar' => $request->avatar,
             'bio' => $request->bio,
@@ -42,29 +44,31 @@ class AccountController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Account created successfully',
-            'account' => $account,
+            'message' => 'Profile created successfully',
+            'profile' => $profile,
         ], 201);
     }
 
     /**
-     * Get a specific account
+     * @group Profile
+     * Get a specific profile
      */
     public function show(Request $request, $id)
     {
-        $account = $request->user()->accounts()->findOrFail($id);
+        $profile = $request->user()->profiles()->findOrFail($id);
 
         return response()->json([
-            'account' => $account,
+            'profile' => $profile,
         ]);
     }
 
     /**
-     * Update an account
+     * @group Profile
+     * Update a profile
      */
     public function update(Request $request, $id)
     {
-        $account = $request->user()->accounts()->findOrFail($id);
+        $profile = $request->user()->profiles()->findOrFail($id);
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
@@ -74,53 +78,55 @@ class AccountController extends Controller
             'is_active' => 'sometimes|boolean',
         ]);
 
-        $account->update($request->only(['name', 'avatar', 'bio', 'address', 'is_active']));
+        $profile->update($request->only(['name', 'avatar', 'bio', 'address', 'is_active']));
 
         return response()->json([
-            'message' => 'Account updated successfully',
-            'account' => $account->fresh(),
+            'message' => 'Profile updated successfully',
+            'profile' => $profile->fresh(),
         ]);
     }
 
     /**
-     * Delete an account
+     * @group Profile
+     * Delete a profile
      */
     public function destroy(Request $request, $id)
     {
-        $account = $request->user()->accounts()->findOrFail($id);
-        $account->delete();
+        $profile = $request->user()->profiles()->findOrFail($id);
+        $profile->delete();
 
         return response()->json([
-            'message' => 'Account deleted successfully',
+            'message' => 'Profile deleted successfully',
         ]);
     }
 
     /**
-     * Switch to a different account (stores account_id in token abilities)
+     * @group Profile
+     * Switch to a different profile (stores profile_id in token abilities)
      */
     public function switch(Request $request)
     {
         $request->validate([
-            'account_id' => 'required|exists:accounts,id',
+            'profile_id' => 'required|exists:profiles,id',
         ]);
 
-        $account = $request->user()->accounts()->where('id', $request->account_id)
+        $profile = $request->user()->profiles()->where('id', $request->profile_id)
             ->where('is_active', true)
             ->firstOrFail();
 
         // Revoke current token
         $request->user()->currentAccessToken()->delete();
 
-        // Create new token with account context
+        // Create new token with profile context
         $token = $request->user()->createToken(
             'auth_token',
-            ['account:' . $account->id],
+            ['profile:' . $profile->id],
             now()->addMinutes(config('sanctum.expiration', 60))
         )->plainTextToken;
 
         return response()->json([
-            'message' => 'Switched to account successfully',
-            'account' => $account,
+            'message' => 'Switched to profile successfully',
+            'profile' => $profile,
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => config('sanctum.expiration', 60) * 60,
@@ -128,45 +134,47 @@ class AccountController extends Controller
     }
 
     /**
-     * Get the current active account from token
+     * @group Profile
+     * Get the current active profile from token
      */
     public function current(Request $request)
     {
         $token = $request->user()->currentAccessToken();
         $abilities = $token->abilities;
 
-        // Extract account ID from abilities
-        $accountAbility = collect($abilities)->first(function ($ability) {
-            return str_starts_with($ability, 'account:');
+        // Extract profile ID from abilities
+        $profileAbility = collect($abilities)->first(function ($ability) {
+            return str_starts_with($ability, 'profile:');
         });
 
-        if ($accountAbility) {
-            $accountId = str_replace('account:', '', $accountAbility);
-            $account = $request->user()->accounts()->find($accountId);
+        if ($profileAbility) {
+            $profileId = str_replace('profile:', '', $profileAbility);
+            $profile = $request->user()->profiles()->find($profileId);
 
-            if ($account) {
+            if ($profile) {
                 return response()->json([
-                    'account' => $account,
+                    'profile' => $profile,
                 ]);
             }
         }
 
         return response()->json([
-            'account' => null,
-            'message' => 'No account selected. Use /accounts/switch to select an account.',
+            'profile' => null,
+            'message' => 'No profile selected. Use /profiles/switch to select a profile.',
         ]);
     }
 
     /**
-     * Get active accounts only
+     * @group Profile
+     * Get active profiles only
      */
     public function active(Request $request)
     {
-        $accounts = $request->user()->activeAccounts()->get();
+        $profiles = $request->user()->activeProfiles()->get();
 
         return response()->json([
-            'accounts' => $accounts,
-            'total' => $accounts->count(),
+            'profiles' => $profiles,
+            'total' => $profiles->count(),
         ]);
     }
 }

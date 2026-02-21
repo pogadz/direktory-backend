@@ -49,26 +49,26 @@ class User extends Authenticatable
     }
 
     /**
-     * Relationship: User has many Accounts
+     * Relationship: User has many Profiles
      */
-    public function accounts()
+    public function profiles()
     {
-        return $this->hasMany(Account::class);
+        return $this->hasMany(Profile::class);
     }
 
     /**
-     * Get active accounts for the user
+     * Get active profiles for the user
      */
-    public function activeAccounts()
+    public function activeProfiles()
     {
-        return $this->hasMany(Account::class)->where('is_active', true);
+        return $this->hasMany(Profile::class)->where('is_active', true);
     }
 
     /**
-     * Get the current active account from session/token
+     * Get the current active profile from session/token
      */
-    public function currentAccount()
+    public function currentProfile()
     {
-        return $this->belongsTo(Account::class, 'current_account_id');
+        return $this->belongsTo(Profile::class, 'current_profile_id');
     }
 }
