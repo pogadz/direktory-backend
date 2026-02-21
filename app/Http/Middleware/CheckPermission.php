@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckPermission
 {
     /**
-     * Handle an incoming request to check if account has required permissions.
+     * Handle an incoming request to check if profile has required permissions.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -23,48 +23,49 @@ class CheckPermission
             ], 401);
         }
 
-        // Get current account from token abilities
         $token = $user->currentAccessToken();
         $abilities = $token->abilities ?? [];
 
-        $accountAbility = collect($abilities)->first(function ($ability) {
-            return str_starts_with($ability, 'account:');
-        });
+        // Admin path: token with wildcard ability ('*') bypasses permission checks.
+        // Only the admin user receives a wildcard token (issued on login).
+        if (in_array('*', $abilities)) {
+            return $next($request);
+        }
 
-        if (!$accountAbility) {
+        // Standard path: token must have a profile: ability (set via /profiles/switch)
+        $profileAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'profile:'));
+
+        if (!$profileAbility) {
             return response()->json([
-                'message' => 'No account selected. Please switch to an account first.',
+                'message' => 'No profile selected. Please switch to a profile first.',
             ], 403);
         }
 
-        $accountId = str_replace('account:', '', $accountAbility);
-        $account = $user->accounts()->find($accountId);
+        $profileId = str_replace('profile:', '', $profileAbility);
+        $profile = $user->profiles()->find($profileId);
 
-        if (!$account) {
+        if (!$profile) {
             return response()->json([
-                'message' => 'Account not found or access denied.',
+                'message' => 'Profile not found or access denied.',
             ], 403);
         }
 
-        if (!$account->is_active) {
+        if (!$profile->is_active) {
             return response()->json([
-                'message' => 'Account is inactive.',
+                'message' => 'Profile is inactive.',
             ], 403);
         }
 
-        // Check if account has required permissions
+        // Check if profile has required permissions
         if (!empty($permissions)) {
-            $hasPermission = $account->hasAnyPermission($permissions);
-
-            if (!$hasPermission) {
+            if (!$profile->hasAnyPermission($permissions)) {
                 return response()->json([
                     'message' => 'Insufficient permissions. Required: ' . implode(' or ', $permissions),
                 ], 403);
             }
         }
 
-        // Attach account to request for easy access in controllers
-        $request->merge(['current_account' => $account]);
+        $request->merge(['current_profile' => $profile]);
 
         return $next($request);
     }
