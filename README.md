@@ -12,6 +12,16 @@
 - ✅ **Input Validation** - Comprehensive request validation
 - 🔄 **Token Management** - Login, logout, refresh, and account switching
 
+## Prerequisite
+- [Composer](https://getcomposer.org/)
+- [Docker](https://www.docker.com/)
+
+## Installing dependecies
+First, run this commmand to install dependecies via composer.
+```
+composer install
+```
+
 ## 🐳 Starting Local Server with Docker
 Edit your `.env` file with your database credentials:
 
