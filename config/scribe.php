@@ -85,7 +85,7 @@ return [
     'try_it_out' => [
         // Add a Try It Out button to your endpoints so consumers can test endpoints right from their browser.
         // Don't forget to enable CORS headers for your endpoints.
-        'enabled' => true,
+        'enabled' => false,
 
         // The base URL to use in the API tester. Leave as null to be the same as the displayed URL (`scribe.base_url`).
         'base_url' => null,
@@ -104,7 +104,7 @@ return [
 
         // Set this to true if your API should be authenticated by default. If so, you must also set `enabled` (above) to true.
         // You can then use @unauthenticated or @authenticated on individual endpoints to change their status from the default.
-        'default' => true,
+        'default' => false,
 
         // Where is the auth value meant to be sent in a request?
         'in' => AuthIn::BEARER->value,
