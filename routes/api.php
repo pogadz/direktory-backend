@@ -41,9 +41,6 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::delete('/{id}', [ProfileController::class, 'destroy']);
 
         // Profile Role Management
-        /**
-         * @hideFromAPIDocumentation
-         */
         Route::prefix('{profileId}/roles')->group(function () {
             Route::get('/', [ProfileRoleController::class, 'index']);
             Route::post('/assign', [ProfileRoleController::class, 'assign']);
