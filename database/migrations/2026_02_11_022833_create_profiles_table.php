@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('job_category_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('avatar')->nullable();
             $table->string('address')->nullable();
             $table->string('bio')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
 
             // Index for faster queries
             $table->index(['user_id', 'is_active']);

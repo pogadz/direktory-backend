@@ -30,6 +30,7 @@ class ProfileController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'job_category_id' => 'required|integer',
             'avatar' => 'nullable|string',
             'bio' => 'nullable|string',
             'address' => 'nullable|string',
@@ -72,6 +73,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
+            'job_category_id' => 'required|integer',
             'avatar' => 'nullable|string',
             'bio' => 'nullable|string',
             'address' => 'nullable|string',

@@ -13,11 +13,12 @@ class AuthController extends Controller
     /**
      * @group Auth
      * Register a new user
-      * @bodyParam firstname string required Example: John
-      * @bodyParam lastname string required Example: Doe
-      * @bodyParam email string required Example: john@example.com
-      * @bodyParam password string required Minimum 8 characters. Example: password123
-      * @bodyParam password_confirmation string required Example: password123
+     * @unauthenticated
+     * @bodyParam firstname string required Example: John
+     * @bodyParam lastname string required Example: Doe
+     * @bodyParam email string required Example: john@example.com
+     * @bodyParam password string required Minimum 8 characters. Example: password123
+     * @bodyParam password_confirmation string required Example: password123
      */
     public function register(Request $request)
     {
@@ -49,6 +50,7 @@ class AuthController extends Controller
     /**
      * @group Auth
      * Login user and create token
+     * @unauthenticated
      */
     public function login(Request $request)
     {
@@ -124,7 +126,8 @@ class AuthController extends Controller
 
     /**
      * @group Auth
-     * Get all active tokens for the authenticated user (Debug)
+     * Get all active tokens for the authenticated user
+     * @hideFromAPIDocumentation
      */
     public function tokens(Request $request)
     {
