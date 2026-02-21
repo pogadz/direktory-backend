@@ -15,7 +15,6 @@
         "laravel/tinker": "^2.10.1"
     },
     "require-dev": {
-        "cweagans/composer-patches": "^2.0",
         "fakerphp/faker": "^1.23",
         "knuckleswtf/scribe": "^5.7",
         "laravel/breeze": "^2.3",
@@ -80,11 +79,6 @@
             "dont-discover": [
                 "knuckleswtf/scribe"
             ]
-        },
-        "patches": {
-            "knuckleswtf/scribe": {
-                "Fix undefined 'text' key in MarkdownParser::blockHeader": "patches/scribe-markdown-parser-text-key.patch"
-            }
         }
     },
     "config": {
@@ -92,7 +86,6 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "cweagans/composer-patches": true,
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         }

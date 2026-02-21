@@ -23,6 +23,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# Scribe generated metadata and docs
+# Scribe
 .scribe/
 public/docs/
+/resources/views/scribe
+/public/vendor/scribe
