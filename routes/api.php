@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\AccountController;
-use App\Http\Controllers\Api\AccountRoleController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ProfileRoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['validate.api', 'throttle:10,1'])->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+
+    /**
+     * @hideFromAPIDocumentation
+     */
     Route::get('/test', function(){
         return response()->json([
             'message' => 'test'
@@ -21,29 +25,31 @@ Route::middleware(['validate.api', 'throttle:10,1'])->group(function () {
 // Protected routes with auth, API validation, and rate limiting
 Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/tokens', [AuthController::class, 'tokens']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
 
-    // Account Management Routes
-    Route::prefix('accounts')->group(function () {
-        Route::get('/', [AccountController::class, 'index']);
-        Route::post('/', [AccountController::class, 'store']);
-        Route::get('/active', [AccountController::class, 'active']);
-        Route::get('/current', [AccountController::class, 'current']);
-        Route::post('/switch', [AccountController::class, 'switch']);
-        Route::get('/{id}', [AccountController::class, 'show']);
-        Route::put('/{id}', [AccountController::class, 'update']);
-        Route::delete('/{id}', [AccountController::class, 'destroy']);
+    // Profile Management Routes
+    Route::prefix('profiles')->group(function () {
+        Route::get('/', [ProfileController::class, 'index']);
+        Route::post('/', [ProfileController::class, 'store']);
+        Route::get('/active', [ProfileController::class, 'active']);
+        Route::get('/current', [ProfileController::class, 'current']);
+        Route::post('/switch', [ProfileController::class, 'switch']);
+        Route::get('/{id}', [ProfileController::class, 'show']);
+        Route::put('/{id}', [ProfileController::class, 'update']);
+        Route::delete('/{id}', [ProfileController::class, 'destroy']);
 
-        // Account Role Management
-        Route::prefix('{accountId}/roles')->group(function () {
-            Route::get('/', [AccountRoleController::class, 'index']);
-            Route::post('/assign', [AccountRoleController::class, 'assign']);
-            Route::post('/revoke', [AccountRoleController::class, 'revoke']);
-            Route::post('/sync', [AccountRoleController::class, 'sync']);
-            Route::get('/permissions', [AccountRoleController::class, 'permissions']);
+        // Profile Role Management
+        /**
+         * @hideFromAPIDocumentation
+         */
+        Route::prefix('{profileId}/roles')->group(function () {
+            Route::get('/', [ProfileRoleController::class, 'index']);
+            Route::post('/assign', [ProfileRoleController::class, 'assign']);
+            Route::post('/revoke', [ProfileRoleController::class, 'revoke']);
+            Route::post('/sync', [ProfileRoleController::class, 'sync']);
+            Route::get('/permissions', [ProfileRoleController::class, 'permissions']);
         });
     });
 });
@@ -77,12 +83,18 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
 
 // Example: Protected routes using permission-based middleware
 Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:view-dashboard'])->group(function () {
+    /**
+     * @hideFromAPIDocumentation
+     */
     Route::get('/dashboard', function () {
         return response()->json(['message' => 'Dashboard - requires view-dashboard permission']);
     });
 });
 
 Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:edit-users,delete-users'])->group(function () {
+    /**
+     * @hideFromAPIDocumentation
+     */
     Route::get('/manage/users', function () {
         return response()->json(['message' => 'User Management - requires edit or delete users permission']);
     });

@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('account_role', function (Blueprint $table) {
+        Schema::create('profile_role', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('account_id')->constrained()->onDelete('cascade');
+            $table->foreignId('profile_id')->constrained()->onDelete('cascade');
             $table->foreignId('role_id')->constrained()->onDelete('cascade');
             $table->timestamps();
 
-            // Prevent duplicate account-role assignments
-            $table->unique(['account_id', 'role_id']);
+            // Prevent duplicate profile-role assignments
+            $table->unique(['profile_id', 'role_id']);
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('account_role');
+        Schema::dropIfExists('profile_role');
     }
 };

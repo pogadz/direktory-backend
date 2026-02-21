@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckAccountRole
+class CheckProfileRole
 {
     /**
      * Handle an incoming request.
@@ -23,44 +23,44 @@ class CheckAccountRole
             ], 401);
         }
 
-        // Get current account from token abilities
+        // Get current profile from token abilities
         $token = $user->currentAccessToken();
         $abilities = $token->abilities ?? [];
 
-        $accountAbility = collect($abilities)->first(function ($ability) {
-            return str_starts_with($ability, 'account:');
+        $profileAbility = collect($abilities)->first(function ($ability) {
+            return str_starts_with($ability, 'profile:');
         });
 
-        if (!$accountAbility) {
+        if (!$profileAbility) {
             return response()->json([
-                'message' => 'No account selected. Please switch to an account first.',
+                'message' => 'No profile selected. Please switch to a profile first.',
             ], 403);
         }
 
-        $accountId = str_replace('account:', '', $accountAbility);
-        $account = $user->accounts()->find($accountId);
+        $profileId = str_replace('profile:', '', $profileAbility);
+        $profile = $user->profiles()->find($profileId);
 
-        if (!$account) {
+        if (!$profile) {
             return response()->json([
-                'message' => 'Account not found or access denied.',
+                'message' => 'Profile not found or access denied.',
             ], 403);
         }
 
-        if (!$account->is_active) {
+        if (!$profile->is_active) {
             return response()->json([
-                'message' => 'Account is inactive.',
+                'message' => 'Profile is inactive.',
             ], 403);
         }
 
-        // Check if account has required role
-        if (!empty($roles) && !in_array($account->role, $roles)) {
+        // Check if profile has required role
+        if (!empty($roles) && !in_array($profile->role, $roles)) {
             return response()->json([
                 'message' => 'Insufficient permissions. Required role: ' . implode(' or ', $roles),
             ], 403);
         }
 
-        // Attach account to request for easy access in controllers
-        $request->merge(['current_account' => $account]);
+        // Attach profile to request for easy access in controllers
+        $request->merge(['current_profile' => $profile]);
 
         return $next($request);
     }

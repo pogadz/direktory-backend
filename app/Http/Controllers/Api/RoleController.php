@@ -7,6 +7,9 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @hideFromAPIDocumentation
+ */
 class RoleController extends Controller
 {
     /**

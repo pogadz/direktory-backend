@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Account;
+use App\Models\Profile;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -30,11 +30,11 @@ class AdminUserSeeder extends Seeder
                 ]
             );
 
-            // Create Admin Account for this user
-            $adminAccount = Account::firstOrCreate(
+            // Create Admin Profile for this user
+            $adminProfile = Profile::firstOrCreate(
                 [
                     'user_id' => $adminUser->id,
-                    'name' => 'Admin Account',
+                    'name' => 'Admin Profile',
                 ],
                 [
                     'is_active' => true,
@@ -42,16 +42,16 @@ class AdminUserSeeder extends Seeder
                 ]
             );
 
-            // Assign super-admin role to the account
+            // Assign super-admin role to the profile
             $superAdminRole = Role::where('name', 'super-admin')->first();
             if ($superAdminRole) {
-                $adminAccount->roles()->syncWithoutDetaching([$superAdminRole->id]);
+                $adminProfile->roles()->syncWithoutDetaching([$superAdminRole->id]);
             }
 
             $this->command->info('✅ Admin user created successfully!');
             $this->command->info('Email: ' . $email);
             $this->command->info('Password: ' . $password);
-            $this->command->info('Account ID: ' . $adminAccount->id);
+            $this->command->info('Profile ID: ' . $adminProfile->id);
             $this->command->info('Role: super-admin (all permissions)');
         });
     }
