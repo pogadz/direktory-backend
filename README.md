@@ -41,6 +41,18 @@ docker exec direktory-app php artisan db:seed --class=AdminUserSeeder
 
 Access at: http://localhost:8000.
 
+## API DOCS
+
+Please run this command.
+```
+# Publish vendor
+php artisan vendor:publish --tag=scribe-config
+
+# Generate or update docs
+php artisan scribe:generate
+```
+And you can acccess it in http://localhost:8000/docs
+
 ### Test the System
 
 ```bash
@@ -207,15 +219,7 @@ backend/
 └── README.md                              # This file
 ```
 
-## API DOCS
-
-Please run this command.
-```
-php artisan scribe:generate
-```
-And you can acccess it in http://localhost:8000/docs 
-
-## Testing
+## Test
 
 ```bash
 # Run all tests
