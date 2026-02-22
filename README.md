@@ -39,19 +39,19 @@ SEEDER_ADMIN_PASSWORD=your_password_here
 ```
 
 ```bash
-# Quick setup (add --no-cache argument if you dont to build without cache)
+# Quick setup (add --no-cache argument if you want to build without cache)
 docker compose build
 
 # And then run this and it should run the application
 docker compose up -d
 
-# If you want to seed admin data you can run this
-docker exec direktory-app php artisan db:seed --class=AdminUserSeeder
+# Run this if you want to populate some data in the database
+docker exec direktory-app php artisan db:seed --class=DatabaseSeeder.php
 ```
 
 Access at: http://localhost:8000.
 
-## API DOCS
+### API Docs
 
 Please run this command.
 ```
@@ -61,35 +61,13 @@ php artisan vendor:publish --tag=scribe-config
 # Generate or update docs
 php artisan scribe:generate
 ```
-And you can acccess it in http://localhost:8000/docs
-
-### Test the System
-
-```bash
-# 1. Login as admin
-curl -X POST http://localhost:8000/api/login \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -H "User-Agent: MyApp/1.0" \
-  -d '{
-    "email": "admin@example.com",
-    "password": "testing123"
-  }'
-
-# 2. Get your profiles
-curl -X GET http://localhost:8000/api/profiles \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Accept: application/json" \
-  -H "User-Agent: MyApp/1.0"
-
-# 3. Switch to admin profile (get new token!)
-curl -X POST http://localhost:8000/api/profiles/switch \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -H "User-Agent: MyApp/1.0" \
-  -d '{"profile_id": 1}'
+And you can acccess it in http://localhost:8000/docs.
+You can also enable the `Try It Out` feature by adding this in .env file.
 ```
+# Enable docs try it out feature
+SCRIBE_TRY_IT_OUT=true
+```
+
 
 ### API Base URL
 
@@ -97,8 +75,12 @@ curl -X POST http://localhost:8000/api/profiles/switch \
 http://127.0.0.1:8000/api
 
 # Test endpoint
+# You should see '{"error": "Invalid Accept header. Must accept application/json"}'
+# which would mean that the api is accessable and working.
 http://127.0.0.1:8000/api/test
 ```
+
+
 ## Security Features
 
 ### Rate Limiting
@@ -110,14 +92,12 @@ Exceeding rate limits returns `429 Too Many Requests`.
 
 ### CORS Configuration
 
-CORS is enabled for all origins by default. For production, update `config/cors.php`:
-
-```php
-'allowed_origins' => [
-    'https://yourdomain.com',
-    'https://app.yourdomain.com',
-],
+Cors can be configured in .env file. Just add the urls that you want to be whitelisted.
 ```
+# Added 2 urls as an example
+CORS_ALLOWED_ORIGINS=https://workers-directory.vercel.app,http://localhost:3000
+```
+
 
 ### Token Authentication & Expiration
 
@@ -143,55 +123,6 @@ The `ValidateApiRequest` middleware is **enabled** on all API routes. It provide
 
 To disable or modify, see [app/Http/Middleware/ValidateApiRequest.php](app/Http/Middleware/ValidateApiRequest.php).
 
-
-## 🎯 Default Permissions
-
-**5 Categories | 18 Permissions:**
-
-- **User Management** (4): view, create, edit, delete users
-- **Role Management** (4): view roles, manage roles, manage permissions, assign roles
-- **Content Management** (5): view, create, edit, delete, publish content
-- **Dashboard** (3): view dashboard, view reports, export data
-- **Settings** (2): view settings, manage settings
-
-## 🔌 Main API Endpoints
-
-### Authentication
-```
-POST   /api/register          # Register
-POST   /api/login             # Login
-POST   /api/logout            # Logout
-POST   /api/refresh           # Refresh token
-GET    /api/user              # Get user info
-```
-
-### Profile Management
-```
-GET    /api/profiles          # List profiles
-POST   /api/profiles          # Create profile
-POST   /api/profiles/switch   # Switch profile (get new token!)
-PUT    /api/profiles/{id}     # Update profile
-DELETE /api/profiles/{id}     # Delete profile
-```
-
-## 🛡️ Middleware Usage
-
-```php
-// Permission-based protection (recommended)
-Route::middleware(['auth:sanctum', 'permission:edit-users'])->group(function () {
-    Route::put('/users/{id}', [UserController::class, 'update']);
-});
-
-// Multiple permissions (OR logic)
-Route::middleware(['auth:sanctum', 'permission:edit-users,delete-users'])->group(function () {
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
-});
-
-// Role-based protection (legacy)
-Route::middleware(['auth:sanctum', 'account.role:admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
-});
-```
 
 ## 📂 Project Structure
 
