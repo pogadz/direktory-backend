@@ -11,6 +11,7 @@ class JobCategoryController extends Controller
     /**
      * @group Job Categories
      * Get all job categories
+     * @unauthenticated
      */
     public function index()
     {
@@ -25,6 +26,7 @@ class JobCategoryController extends Controller
     /**
      * @group Job Categories
      * Get a specific job category
+     * @unauthenticated
      */
     public function show($id)
     {

@@ -52,8 +52,8 @@ class CheckProfileRole
             ], 403);
         }
 
-        // Check if profile has required role
-        if (!empty($roles) && !in_array($profile->role, $roles)) {
+        // Check if profile has required role (roles passed as IDs)
+        if (!empty($roles) && !$profile->hasAnyRole(array_map('intval', $roles))) {
             return response()->json([
                 'message' => 'Insufficient permissions. Required role: ' . implode(' or ', $roles),
             ], 403);

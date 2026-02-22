@@ -26,29 +26,29 @@ class Profile extends Model
     ];
 
     /**
-     * Check if profile has a specific role by name
+     * Check if profile has a specific role by ID
      */
-    public function hasRole(string $roleName): bool
+    public function hasRole(int $roleId): bool
     {
-        return $this->roles()->where('name', $roleName)->exists();
+        return $this->roles()->where('roles.id', $roleId)->exists();
     }
 
     /**
-     * Check if profile has any of the given roles by name
+     * Check if profile has any of the given roles by ID
      */
-    public function hasAnyRole(array $roleNames): bool
+    public function hasAnyRole(array $roleIds): bool
     {
-        return $this->roles()->whereIn('name', $roleNames)->exists();
+        return $this->roles()->whereIn('roles.id', $roleIds)->exists();
     }
 
     /**
-     * Check if profile has all of the given roles by name
+     * Check if profile has all of the given roles by ID
      */
-    public function hasAllRoles(array $roleNames): bool
+    public function hasAllRoles(array $roleIds): bool
     {
-        $profileRoles = $this->roles->pluck('name')->toArray();
-        foreach ($roleNames as $roleName) {
-            if (!in_array($roleName, $profileRoles)) {
+        $profileRoleIds = $this->roles->pluck('id')->toArray();
+        foreach ($roleIds as $roleId) {
+            if (!in_array($roleId, $profileRoleIds)) {
                 return false;
             }
         }

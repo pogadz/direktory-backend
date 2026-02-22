@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\WorkerController;
 use App\Http\Controllers\Api\ProfileRoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\JobCategoryController;
@@ -17,6 +18,12 @@ Route::middleware(['validate.api', 'throttle:10,1'])->group(function () {
     Route::prefix('job-categories')->group(function () {
         Route::get('/', [JobCategoryController::class, 'index']);
         Route::get('/{id}', [JobCategoryController::class, 'show']);
+    });
+
+    // Workers (public read)
+    Route::prefix('workers')->group(function () {
+        Route::get('/', [WorkerController::class, 'index']);
+        Route::get('/{id}', [WorkerController::class, 'show']);
     });
 
     /**
