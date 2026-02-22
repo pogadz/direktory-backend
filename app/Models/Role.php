@@ -30,11 +30,11 @@ class Role extends Model
     }
 
     /**
-     * Relationship: Roles belong to many Accounts
+     * Relationship: Roles belong to many Profiles
      */
-    public function accounts()
+    public function profiles()
     {
-        return $this->belongsToMany(Account::class, 'account_role')
+        return $this->belongsToMany(Profile::class, 'profile_role')
             ->withTimestamps();
     }
 

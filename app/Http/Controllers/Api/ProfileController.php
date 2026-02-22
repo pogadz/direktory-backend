@@ -104,7 +104,7 @@ class ProfileController extends Controller
 
     /**
      * @group Profile
-     * Switch to a different profile (stores profile_id in token abilities)
+     * Switch to a different profile
      */
     public function switch(Request $request)
     {
