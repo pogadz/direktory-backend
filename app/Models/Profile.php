@@ -147,4 +147,9 @@ class Profile extends Model
     {
         return $this->belongsTo(JobCategory::class);
     }
+
+    public function gallery()
+    {
+        return $this->hasMany(Gallery::class);
+    }
 }

@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\JobCategoryController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\GalleryController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
@@ -43,6 +45,12 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
     Route::get('/tokens', [AuthController::class, 'tokens']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
 
+    // Authenticated user CRUD (update self, delete self)
+    Route::prefix('user')->group(function () {
+        Route::put('/', [UserController::class, 'update']);
+        Route::delete('/', [UserController::class, 'destroy']);
+    });
+
     // Profile Management Routes
     Route::prefix('profiles')->group(function () {
         Route::get('/', [ProfileController::class, 'index']);
@@ -54,6 +62,15 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::put('/{id}', [ProfileController::class, 'update']);
         Route::delete('/{id}', [ProfileController::class, 'destroy']);
 
+        // Gallery Management
+        Route::prefix('{profileId}/gallery')->group(function () {
+            Route::get('/', [GalleryController::class, 'index']);
+            Route::post('/', [GalleryController::class, 'store']);
+            Route::get('/{id}', [GalleryController::class, 'show']);
+            Route::put('/{id}', [GalleryController::class, 'update']);
+            Route::delete('/{id}', [GalleryController::class, 'destroy']);
+        });
+
         // Profile Role Management
         Route::prefix('{profileId}/roles')->group(function () {
             Route::get('/', [ProfileRoleController::class, 'index']);
@@ -62,6 +79,14 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
             Route::post('/sync', [ProfileRoleController::class, 'sync']);
             Route::get('/permissions', [ProfileRoleController::class, 'permissions']);
         });
+    });
+});
+
+// Admin-only routes for managing Users
+Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:edit-users,delete-users'])->group(function () {
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::get('/{id}', [UserController::class, 'show']);
     });
 });
 

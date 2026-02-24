@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class WorkerController extends Controller
 {
     /**
-     * @group Workers
+     * @group Worker
      *
      * Filter and list worker profiles.
      * @unauthenticated
@@ -87,7 +87,7 @@ class WorkerController extends Controller
     }
 
     /**
-     * @group Workers
+     * @group Worker
      *
      * Get a single worker profile.
      * @unauthenticated
