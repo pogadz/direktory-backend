@@ -13,17 +13,10 @@
 - 🔄 **Token Management** - Login, logout, refresh, and account switching
 
 ## Prerequisite
-- [Composer](https://getcomposer.org/)
 - [Docker](https://www.docker.com/)
 
-## Installing dependecies
-First, run this commmand to install dependecies via composer.
-```
-composer install
-```
-
-## 🐳 Starting Local Server with Docker
-Edit your `.env` file with your database credentials:
+## Configure Environment File
+First, create/edit your `.env` file and paste the variables from .env.example. And then, edit the database credentials. 
 
 ```env
 DB_CONNECTION=pgsql
@@ -33,10 +26,10 @@ DB_DATABASE=your_database_name
 DB_USERNAME=your_database_user
 DB_PASSWORD=your_database_password
 
-# add this if you want to seed an admin account
-SEEDER_ADMIN_EMAIL=admin@example.com
-SEEDER_ADMIN_PASSWORD=your_password_here
+SEEDER_PASSWORD=testing123
 ```
+
+## 🐳 Starting Local Server with Docker
 
 ```bash
 # Quick setup (add --no-cache argument if you want to build without cache)
