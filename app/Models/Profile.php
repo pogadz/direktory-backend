@@ -12,6 +12,7 @@ class Profile extends Model
 
     protected $fillable = [
         'user_id',
+        'directory_id',
         'job_category_id',
         'name',
         'avatar',
@@ -143,8 +144,18 @@ class Profile extends Model
         $this->roles()->sync($roleIds);
     }
 
+    public function directory()
+    {
+        return $this->belongsTo(Directory::class);
+    }
+
     public function jobCategory()
     {
         return $this->belongsTo(JobCategory::class);
+    }
+
+    public function gallery()
+    {
+        return $this->hasMany(Gallery::class);
     }
 }

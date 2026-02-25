@@ -50,6 +50,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relationship: User has one Detail
+     */
+    public function user_detail()
+    {
+        return $this->hasOne(UserDetail::class);
+    }
+
+    /**
      * Relationship: User has many Profiles
      */
     public function profiles()

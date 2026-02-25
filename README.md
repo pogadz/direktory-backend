@@ -170,6 +170,15 @@ php artisan test
 php artisan test tests/Feature/AuthTest.php
 ```
 
+## Troubleshoot
+If you encounter disk space issue in docker just run the docker prune command and then rebuild.
+
+```
+docker system prune -a
+docker compose build
+docker compose up -d
+```
+
 ---
 
 **Built with Laravel 11**

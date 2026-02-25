@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class JobCategoryController extends Controller
 {
     /**
-     * @group Job Categories
+     * @group Job Category
      * Get all job categories
      * @unauthenticated
      */
@@ -24,7 +24,7 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Categories
+     * @group Job Category
      * Get a specific job category
      * @unauthenticated
      */
@@ -38,7 +38,7 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Categories
+     * @group Job Category
      * Create a new job category
      */
     public function store(Request $request)
@@ -58,7 +58,7 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Categories
+     * @group Job Category
      * Update a job category
      */
     public function update(Request $request, $id)
@@ -78,7 +78,7 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Categories
+     * @group Job Category
      * Delete a job category
      */
     public function destroy($id)

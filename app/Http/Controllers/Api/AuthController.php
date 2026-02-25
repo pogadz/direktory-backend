@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,8 +16,8 @@ class AuthController extends Controller
      * Register a new user
      * @unauthenticated
      * @bodyParam firstname string required Example: John
-     * @bodyParam lastname string required Example: Doe
-     * @bodyParam email string required Example: john@example.com
+     * @bodyParam lastname string required Example: Walker
+     * @bodyParam email string required Example: johnwalker@example.com
      * @bodyParam password string required Minimum 8 characters. Example: password123
      * @bodyParam password_confirmation string required Example: password123
      */
@@ -51,6 +52,8 @@ class AuthController extends Controller
      * @group Auth
      * Login user and create token
      * @unauthenticated
+     * @bodyParam email string required Example: johnwalker@example.com
+     * @bodyParam password string required Minimum 8 characters. Example: password123
      */
     public function login(Request $request)
     {
@@ -96,10 +99,8 @@ class AuthController extends Controller
      * Get authenticated user
      */
     public function user(Request $request)
-    {
-        return response()->json([
-            'user' => $request->user(),
-        ]);
+    {   
+        return response()->json(new UserResource($request->user()->load('user_detail')));
     }
 
     /**
