@@ -46,7 +46,7 @@ docker compose build
 docker compose up -d
 
 # Run this if you want to populate some data in the database
-docker exec direktory-app php artisan db:seed --class=DatabaseSeeder.php
+docker exec direktory-app php artisan db:seed
 ```
 
 Access at: http://localhost:8000.
