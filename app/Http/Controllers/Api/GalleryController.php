@@ -24,7 +24,7 @@ class GalleryController extends Controller
 
     /**
      * @group Gallery
-     * Add a gallery item to a profile
+     * Create/add gallery item to a profile
      */
     public function store(Request $request, $profileId)
     {

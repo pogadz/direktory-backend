@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\GalleryController;
+use App\Http\Controllers\Api\DirectoryController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
@@ -26,6 +27,12 @@ Route::middleware(['validate.api', 'throttle:10,1'])->group(function () {
     Route::prefix('workers')->group(function () {
         Route::get('/', [WorkerController::class, 'index']);
         Route::get('/{id}', [WorkerController::class, 'show']);
+    });
+
+    // Directories (public read)
+    Route::prefix('directories')->group(function () {
+        Route::get('/', [DirectoryController::class, 'index']);
+        Route::get('/{id}', [DirectoryController::class, 'show']);
     });
 
     /**
@@ -92,6 +99,13 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
 
 // Admin-only routes for managing Job Categories, Roles and Permissions
 Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:manage-roles,manage-permissions'])->group(function () {
+    // Directory Management
+    Route::prefix('directories')->group(function () {
+        Route::post('/', [DirectoryController::class, 'store']);
+        Route::put('/{id}', [DirectoryController::class, 'update']);
+        Route::delete('/{id}', [DirectoryController::class, 'destroy']);
+    });
+
     // Job Category Management
     Route::prefix('job-categories')->group(function () {
         Route::post('/', [JobCategoryController::class, 'store']);

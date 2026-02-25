@@ -14,7 +14,7 @@ class ProfileController extends Controller
      */
     public function index(Request $request)
     {
-        $profiles = $request->user()->profiles()->get();
+        $profiles = $request->user()->profiles()->with('directory')->get();
 
         return response()->json([
             'profiles' => $profiles,
@@ -29,19 +29,22 @@ class ProfileController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'job_category_id' => 'required|integer',
-            'avatar' => 'nullable|string',
-            'bio' => 'nullable|string',
-            'address' => 'nullable|string',
+            'name'             => 'required|string|max:255',
+            'directory_id'     => 'required|exists:directories,id',
+            'job_category_id'  => 'required|exists:job_categories,id',
+            'avatar'           => 'nullable|string',
+            'bio'              => 'nullable|string',
+            'address'          => 'nullable|string',
         ]);
 
         $profile = $request->user()->profiles()->create([
-            'name' => $request->name,
-            'avatar' => $request->avatar,
-            'bio' => $request->bio,
-            'address' => $request->address,
-            'is_active' => true,
+            'name'            => $request->name,
+            'directory_id'    => $request->directory_id,
+            'job_category_id' => $request->job_category_id,
+            'avatar'          => $request->avatar,
+            'bio'             => $request->bio,
+            'address'         => $request->address,
+            'is_active'       => true,
         ]);
 
         return response()->json([
@@ -56,7 +59,7 @@ class ProfileController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $profile = $request->user()->profiles()->findOrFail($id);
+        $profile = $request->user()->profiles()->with('directory')->findOrFail($id);
 
         return response()->json([
             'profile' => $profile,
@@ -72,15 +75,16 @@ class ProfileController extends Controller
         $profile = $request->user()->profiles()->findOrFail($id);
 
         $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'job_category_id' => 'required|integer',
-            'avatar' => 'nullable|string',
-            'bio' => 'nullable|string',
-            'address' => 'nullable|string',
-            'is_active' => 'sometimes|boolean',
+            'name'            => 'required|string|max:255',
+            'directory_id'    => 'required|exists:directories,id',
+            'job_category_id' => 'required|exists:job_categories,id',
+            'avatar'          => 'nullable|string',
+            'bio'             => 'nullable|string',
+            'address'         => 'nullable|string',
+            'is_active'       => 'sometimes|boolean',
         ]);
 
-        $profile->update($request->only(['name', 'avatar', 'bio', 'address', 'is_active']));
+        $profile->update($request->only(['name', 'directory_id', 'job_category_id', 'avatar', 'bio', 'address', 'is_active']));
 
         return response()->json([
             'message' => 'Profile updated successfully',
@@ -172,7 +176,7 @@ class ProfileController extends Controller
      */
     public function active(Request $request)
     {
-        $profiles = $request->user()->activeProfiles()->get();
+        $profiles = $request->user()->activeProfiles()->with('directory')->get();
 
         return response()->json([
             'profiles' => $profiles,

@@ -44,8 +44,8 @@ class UserController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'firstname' => 'sometimes|string|max:255',
-            'lastname'  => 'sometimes|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'lastname'  => 'required|string|max:255',
             'avatar'       => 'nullable|string',
             'profession'   => 'nullable|string|max:255',
             'status_emoji' => 'nullable|string|max:10',

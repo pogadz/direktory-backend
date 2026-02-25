@@ -14,7 +14,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
             JobCategoriesSeeder::class,
+            DirectorySeeder::class,
             NormalUsersSeeder::class,
+            ProfileSeeder::class,
+            GallerySeeder::class,
         ]);
 
         $this->command->info('');
