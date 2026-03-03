@@ -49,10 +49,10 @@ Access at: http://localhost:8000.
 Please run this command.
 ```
 # Publish vendor
-php artisan vendor:publish --tag=scribe-config
+docker exec direktory-app php artisan vendor:publish --tag=scribe-config
 
 # Generate or update docs
-php artisan scribe:generate
+docker exec direktory-app php artisan scribe:generate
 ```
 And you can acccess it in http://localhost:8000/docs.
 You can also enable the `Try It Out` feature by adding this in .env file.
