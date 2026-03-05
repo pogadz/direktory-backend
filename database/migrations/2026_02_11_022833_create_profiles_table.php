@@ -20,6 +20,9 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('address')->nullable();
             $table->string('bio')->nullable();
+            $table->decimal('hourly_rate', 10, 2)->nullable();
+            $table->string('response_time')->nullable();
+            $table->integer('completed_jobs')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();

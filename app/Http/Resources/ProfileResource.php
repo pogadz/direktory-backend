@@ -16,29 +16,36 @@ class ProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => '',
-            'directory_id' => '',
-            'directory_label' => 'Workers',
-            'directory_slug' => 'workers',
-            'created_at' => '',
+            'id' => $this->id,
+            'name' => $this->name,
+            'directory_id' => $this->directory_id,
+            'directory_label' => $this->whenLoaded('directory', fn () => $this->directory?->name),
+            'directory_slug' => $this->whenLoaded('directory', fn () => $this->directory?->slug),
+            'created_at' => $this->created_at,
             'profile_data' => [
                 'id' => $this->id,
-                'firstname' => $this->firstname,
-                'lastname' => $this->lastname,
-                'email' => $this->email,
-                'email_verified_at' => $this->email_verified_at,
+                'firstname' => $this->whenLoaded('user', fn () => $this->user?->firstname),
+                'lastname' => $this->whenLoaded('user', fn () => $this->user?->lastname),
+                'email' => $this->whenLoaded('user', fn () => $this->user?->email),
+                'email_verified_at' => $this->whenLoaded('user', fn () => $this->user?->email_verified_at),
                 'joined' => Carbon::parse($this->created_at)->format('F Y'),
-                'verified' => false,
-                'rating' => null,
-                'reviews' => null,
-                'avatar' => $this->user_detail?->avatar,
-                'profession' => $this->user_detail?->profession,
-                'status_emoji' => $this->user_detail?->status_emoji,
-                'status_text' => $this->user_detail?->status_text,
-                'location' => $this->user_detail?->location,
-                'hourly_rate' => null,
-                'completed_jobs' => null,
-                'response_time' => $this->user_detail?->responseTime,
+                'avatar' => $this->avatar ?? $this->user?->userDetail?->avatar,
+                'profession' => $this->whenLoaded('jobCategory', fn () => $this->jobCategory?->name) ?? $this->user?->userDetail?->profession,
+                'status_text' => $this->bio ?? $this->user?->userDetail?->status_text,
+                'status_emoji' => $this->user?->userDetail?->status_emoji,
+                'location' => $this->address,
+
+                'verified' => $this->whenLoaded(
+                    'user',
+                    fn () => !is_null($this->user?->email_verified_at)
+                ),
+
+                'rating' => null, // todo: add reviews system
+                'reviews' => null, // todo: add reviews table
+
+                'hourly_rate' => $this->hourly_rate,
+                'completed_jobs' => $this->completed_jobs,
+                'response_time' => $this->response_time,
             ],
         ];
     }

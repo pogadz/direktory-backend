@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProfileResource;
 
 class ProfileController extends Controller
 {
@@ -35,6 +36,8 @@ class ProfileController extends Controller
             'avatar'           => 'nullable|string',
             'bio'              => 'nullable|string',
             'address'          => 'nullable|string',
+            'hourly_rate'     => 'nullable|string',
+            'response_time'   => 'nullable|string',
         ]);
 
         $profile = $request->user()->profiles()->create([
@@ -44,6 +47,8 @@ class ProfileController extends Controller
             'avatar'          => $request->avatar,
             'bio'             => $request->bio,
             'address'         => $request->address,
+            'hourly_rate'     => $request->hourly_rate,
+            'response_time'   => $request->response_time,
             'is_active'       => true,
         ]);
 
@@ -81,10 +86,22 @@ class ProfileController extends Controller
             'avatar'          => 'nullable|string',
             'bio'             => 'nullable|string',
             'address'         => 'nullable|string',
+            'hourly_rate'     => 'nullable|string',
+            'response_time'   => 'nullable|string',
             'is_active'       => 'sometimes|boolean',
         ]);
 
-        $profile->update($request->only(['name', 'directory_id', 'job_category_id', 'avatar', 'bio', 'address', 'is_active']));
+        $profile->update($request->only([
+            'name',
+            'directory_id',
+            'job_category_id',
+            'avatar',
+            'bio',
+            'address',
+            'hourly_rate',
+            'response_time',
+            'is_active', 'is_active'
+        ]));
 
         return response()->json([
             'message' => 'Profile updated successfully',
@@ -116,7 +133,9 @@ class ProfileController extends Controller
             'profile_id' => 'required|exists:profiles,id',
         ]);
 
-        $profile = $request->user()->profiles()->where('id', $request->profile_id)
+        $profile = $request->user()->profiles()
+            ->with(['directory', 'user', 'jobCategory'])
+            ->where('id', $request->profile_id)
             ->where('is_active', true)
             ->firstOrFail();
 
@@ -132,7 +151,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'message' => 'Switched to profile successfully',
-            'profile' => $profile,
+            'profile' => new ProfileResource($profile),
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => config('sanctum.expiration', 60) * 60,

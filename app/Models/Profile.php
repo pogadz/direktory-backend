@@ -17,8 +17,10 @@ class Profile extends Model
         'name',
         'avatar',
         'bio',
-        'status',
         'address',
+        'hourly_rate',
+        'response_time',
+        'completed_jobs',
         'is_active',
     ];
 
