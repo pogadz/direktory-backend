@@ -160,4 +160,9 @@ class Profile extends Model
     {
         return $this->hasMany(Gallery::class);
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
