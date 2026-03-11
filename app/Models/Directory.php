@@ -15,4 +15,9 @@ class Directory extends Model
     {
         return $this->hasMany(Profile::class);
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

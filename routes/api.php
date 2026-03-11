@@ -10,6 +10,9 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\DirectoryController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\RatingController;
+use App\Http\Controllers\Api\BookmarkController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
@@ -58,7 +61,7 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::delete('/', [UserController::class, 'destroy']);
     });
 
-    // Profile Management Routes
+    // Profile
     Route::prefix('profiles')->group(function () {
         Route::get('/', [ProfileController::class, 'index']);
         Route::post('/', [ProfileController::class, 'store']);
@@ -69,7 +72,7 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::put('/{id}', [ProfileController::class, 'update']);
         Route::delete('/{id}', [ProfileController::class, 'destroy']);
 
-        // Gallery Management
+        // Gallery
         Route::prefix('{profileId}/gallery')->group(function () {
             Route::get('/', [GalleryController::class, 'index']);
             Route::post('/', [GalleryController::class, 'store']);
@@ -78,7 +81,7 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
             Route::delete('/{id}', [GalleryController::class, 'destroy']);
         });
 
-        // Profile Role Management
+        // Profile Role
         Route::prefix('{profileId}/roles')->group(function () {
             Route::get('/', [ProfileRoleController::class, 'index']);
             Route::post('/assign', [ProfileRoleController::class, 'assign']);
@@ -86,6 +89,30 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
             Route::post('/sync', [ProfileRoleController::class, 'sync']);
             Route::get('/permissions', [ProfileRoleController::class, 'permissions']);
         });
+    });
+
+    // Bookings
+    Route::prefix('bookings')->group(function () {
+        Route::get('/', [BookingController::class, 'index']);
+        Route::post('/', [BookingController::class, 'store']);
+        Route::put('/{id}', [BookingController::class, 'update']);
+        Route::post('/{id}/status', [BookingController::class, 'setStatus']);
+        Route::delete('/{id}', [BookingController::class, 'archive']);
+    });
+
+    // Ratings
+    Route::prefix('ratings')->group(function () {
+        Route::get('/', [RatingController::class, 'index']);
+        Route::post('/', [RatingController::class, 'store']);
+        Route::get('/{id}', [RatingController::class, 'show']);
+        Route::put('/{id}', [RatingController::class, 'update']);
+    });
+
+    // Bookmarks
+    Route::prefix('bookmarks')->group(function () {
+        Route::get('/', [BookmarkController::class, 'index']);
+        Route::post('/', [BookmarkController::class, 'store']);
+        Route::put('/{id}', [BookmarkController::class, 'update']);
     });
 });
 
