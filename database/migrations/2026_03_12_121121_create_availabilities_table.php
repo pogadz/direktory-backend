@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ratings', function (Blueprint $table) {
+        Schema::create('availabilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-            $table->string('rating_value')->nullable();
-            $table->text('review_comment')->nullable();
+            $table->jsonb('schedule');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ratings');
+        Schema::dropIfExists('availabilities');
     }
 };

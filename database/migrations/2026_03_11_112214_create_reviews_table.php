@@ -11,20 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bookmarks', function (Blueprint $table) {
+        Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            // Bookmarker can be a user or profile id
-            $table->unsignedBigInteger('bookmarker_id');
-
-            // User::class or Profile::class
-            $table->string('bookmarker_type'); 
-
-            // Profile being bookmarked
+            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-
-            // prevent duplicates
-            $table->unique(['bookmarker_id', 'bookmarker_type', 'profile_id'], 'unique_bookmarks');
+            $table->string('rating')->nullable();
+            $table->text('comment')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bookmarks');
+        Schema::dropIfExists('reviews');
     }
 };

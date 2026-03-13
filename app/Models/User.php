@@ -80,4 +80,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Profile::class, 'current_profile_id');
     }
+
+    /**
+     * Relationship: User has many Bookmarks
+     */
+    public function bookmarks()
+    {
+        return $this->morphMany(Bookmark::class, 'bookmarker');
+    }
 }
