@@ -11,8 +11,9 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\DirectoryController;
 use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\RatingController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\BookmarkController;
+use App\Http\Controllers\Api\AvailabilityController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
@@ -101,11 +102,11 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
     });
 
     // Ratings
-    Route::prefix('ratings')->group(function () {
-        Route::get('/', [RatingController::class, 'index']);
-        Route::post('/', [RatingController::class, 'store']);
-        Route::get('/{id}', [RatingController::class, 'show']);
-        Route::put('/{id}', [RatingController::class, 'update']);
+    Route::prefix('reviews')->group(function () {
+        Route::get('/', [ReviewController::class, 'index']);
+        Route::post('/', [ReviewController::class, 'store']);
+        Route::get('/{id}', [ReviewController::class, 'show']);
+        Route::put('/{id}', [ReviewController::class, 'update']);
     });
 
     // Bookmarks
@@ -113,6 +114,12 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::get('/', [BookmarkController::class, 'index']);
         Route::post('/', [BookmarkController::class, 'store']);
         Route::put('/{id}', [BookmarkController::class, 'update']);
+    });
+
+    // Availability
+    Route::prefix('availability')->group(function () {
+        Route::get('/{profileId}', [AvailabilityController::class, 'getAvailability']);
+        Route::post('/', [AvailabilityController::class, 'saveAvailability']);
     });
 });
 
