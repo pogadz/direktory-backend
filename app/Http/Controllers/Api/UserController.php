@@ -3,20 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use App\Models\User;
-use App\Models\UserDetail;
 use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
+use App\Repositories\Contracts\UserRepositoryInterface;
 
 class UserController extends Controller
 {
+    protected $users;
+
+    public function __construct(UserRepositoryInterface $users)
+    {
+        $this->users = $users;
+    }
+
     /**
      * @group User
      * List all users with their details
      */
     public function index()
     {
-        $users = User::with('user_detail')->get();
+        $users = $this->users->allWithDetails();
 
         return response()->json([
             'users' => $users,
@@ -30,7 +36,13 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::with('user_detail')->findOrFail($id);
+        $user = $this->users->findByIdWithDetails($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
 
         return response()->json(new UserResource($user));
     }
@@ -43,7 +55,7 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        $request->validate([
+        $validated = $request->validate([
             'firstname' => 'required|string|max:255',
             'lastname'  => 'required|string|max:255',
             'avatar'       => 'nullable|string',
@@ -54,16 +66,14 @@ class UserController extends Controller
             'responseTime' => 'nullable|string|max:255',
         ]);
 
-        $user->update($request->only(['firstname', 'lastname', 'email']));
+        $userData = $request->only(['firstname', 'lastname', 'email']);
+        $detailData = $request->only(['avatar', 'profession', 'status_emoji', 'status_text', 'location', 'responseTime']);
 
-        $user->user_detail()->updateOrCreate(
-            ['user_id' => $user->id],
-            $request->only(['avatar', 'profession', 'status_emoji', 'status_text', 'location', 'responseTime'])
-        );
+        $updatedUser = $this->users->updateUserAndDetails($user->id, $userData, $detailData);
 
         return response()->json([
             'message' => 'User updated successfully',
-            'user'    => $user->fresh('user_detail'),
+            'user'    => $updatedUser,
         ]);
     }
 
@@ -71,15 +81,14 @@ class UserController extends Controller
      * @group User
      * Delete the authenticated user's account
      */
-    // public function destroy(Request $request)
-    // {
-    //     $user = $request->user();
+    public function destroy(Request $request)
+    {
+        $user = $request->user();
 
-    //     $user->currentAccessToken()->delete();
-    //     $user->delete();
+        $this->users->deleteUser($user->id);
 
-    //     return response()->json([
-    //         'message' => 'User deleted successfully',
-    //     ]);
-    // }
+        return response()->json([
+            'message' => 'User deleted successfully',
+        ]);
+    }
 }

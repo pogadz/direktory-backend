@@ -4,44 +4,53 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Repositories\Contracts\BookingRepositoryInterface;
 
 class BookingController extends Controller
 {
+    protected $bookings;
+
+    public function __construct(BookingRepositoryInterface $bookings)
+    {
+        $this->bookings = $bookings;
+    }
+
     /**
      * @group Booking
-     * Get all bookings for user profile
+     * Get all bookings
      */
     public function index(Request $request)
     {
-        $bookings = $request->user()->profiles()->get()->bookings()->get();
+        $bookings = $this->bookings->allByUser($request->user()->id);
 
         return response()->json([
             'bookings' => $bookings,
-            'total' => $bookings->count(),
+            'total'    => $bookings->count(),
         ]);
     }
 
     /**
      * @group Booking
-     * Create new booking for user profile
+     * Create new booking
      */
     public function store(Request $request)
     {
         $request->validate([
             'profile_id'       => 'required|exists:profiles,id',
-            'user_id'          => 'required|exists:users,id',
             'directory_id'     => 'required|exists:directories,id',
             'job_category_id'  => 'required|exists:job_categories,id',
-            'note'           => 'nullable|string',
+            'note'             => 'nullable|string',
         ]);
 
-        $booking = Booking::create([
-            'user_id'         => $request->user_id,
+        $user = $request->user();
+
+        $booking = $this->bookings->create([
+            'user_id'         => $user->id,
             'profile_id'      => $request->profile_id,
             'directory_id'    => $request->directory_id,
             'job_category_id' => $request->job_category_id,
-            'note'          => $request->note,
-            'requested_at'     => now(),
+            'note'            => $request->note,
+            'requested_at'    => now(),
             'status'          => 'pending'
         ]);
 
@@ -57,19 +66,19 @@ class BookingController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $booking = Booking::findOrFail($id);
-
         $request->validate([
-            'id' => 'required|exists:bookings,id',
             'note' => 'nullable|string',
         ]);
 
-        $booking->update([
-            'note' => $request->note,
-        ]);
+        $booking = $this->bookings->update($id, $request->only('note'));
 
-        return response()->json
-        ([
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Booking not found',
+            ], 404);
+        }
+
+        return response()->json([
             'message' => 'Booking updated successfully',
             'booking' => $booking,
         ]);
@@ -81,34 +90,17 @@ class BookingController extends Controller
      */
     public function setStatus(Request $request, $id, $status = 'pending')
     {
-        $booking = Booking::findOrFail($id);
-
         $request->validate([
             'status' => 'required|in:pending,accepted,completed,cancelled',
         ]);
 
-        $booking->status = $request->status;
+        $booking = $this->bookings->setStatus($id, $request->status);
 
-        switch($status){
-            case 'pending':
-                $booking->requested_at = now();
-                break;
-            case 'accepted':
-                $booking->accepted_at = now();
-                break;
-            case 'completed':
-                $booking->completed_at = now();
-                break;
-            case 'cancelled':
-                $booking->cancelled_at = now();
-                break;
-            default:
-                return response()->json([
-                    'message' => 'Invalid booking status',
-                ], 400);
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Invalid booking or status',
+            ], 400);
         }
-
-        $booking->save();
 
         return response()->json([
             'message' => 'Booking status updated successfully',
@@ -122,9 +114,13 @@ class BookingController extends Controller
      */
     public function archive(Request $request, $id)
     {
-        $booking = Booking::findOrFail($id);
+        $deleted = $this->bookings->archive($id);
 
-        $booking->delete();
+        if (!$deleted) {
+            return response()->json([
+                'message' => 'Booking not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Booking archived successfully',

@@ -3,19 +3,27 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProfileResource;
+use App\Repositories\Contracts\ProfileRepositoryInterface;
 
 class ProfileController extends Controller
 {
+    protected $profiles;
+
+    public function __construct(ProfileRepositoryInterface $profiles)
+    {
+        $this->profiles = $profiles;
+    }
+
     /**
      * @group Profile
      * Get all profiles for the authenticated user
      */
     public function index(Request $request)
     {
-        $profiles = $request->user()->profiles()->with('directory')->get();
+        $user = $request->user();
+        $profiles = $this->profiles->allByUser($user->id);
 
         return response()->json([
             'profiles' => $profiles,
@@ -30,27 +38,17 @@ class ProfileController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'             => 'required|string|max:255',
-            'directory_id'     => 'required|exists:directories,id',
-            'job_category_id'  => 'required|exists:job_categories,id',
-            'avatar'           => 'nullable|string',
-            'bio'              => 'nullable|string',
-            'address'          => 'nullable|string',
+            'name'            => 'required|string|max:255',
+            'directory_id'    => 'required|exists:directories,id',
+            'job_category_id' => 'required|exists:job_categories,id',
+            'avatar'          => 'nullable|string',
+            'bio'             => 'nullable|string',
+            'address'         => 'nullable|string',
             'hourly_rate'     => 'nullable|string',
             'response_time'   => 'nullable|string',
         ]);
 
-        $profile = $request->user()->profiles()->create([
-            'name'            => $request->name,
-            'directory_id'    => $request->directory_id,
-            'job_category_id' => $request->job_category_id,
-            'avatar'          => $request->avatar,
-            'bio'             => $request->bio,
-            'address'         => $request->address,
-            'hourly_rate'     => $request->hourly_rate,
-            'response_time'   => $request->response_time,
-            'is_active'       => true,
-        ]);
+        $profile = $this->profiles->createForUser($request->user()->id, $request->all());
 
         return response()->json([
             'message' => 'Profile created successfully',
@@ -64,7 +62,13 @@ class ProfileController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $profile = $request->user()->profiles()->with('directory')->findOrFail($id);
+        $profile = $this->profiles->findByUser($request->user()->id, $id);
+
+        if (!$profile) {
+            return response()->json([
+                'message' => 'Profile not found',
+            ], 404);
+        }
 
         return response()->json([
             'profile' => $profile,
@@ -77,8 +81,6 @@ class ProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $profile = $request->user()->profiles()->findOrFail($id);
-
         $request->validate([
             'name'            => 'required|string|max:255',
             'directory_id'    => 'required|exists:directories,id',
@@ -91,21 +93,22 @@ class ProfileController extends Controller
             'is_active'       => 'sometimes|boolean',
         ]);
 
-        $profile->update($request->only([
-            'name',
-            'directory_id',
-            'job_category_id',
-            'avatar',
-            'bio',
-            'address',
-            'hourly_rate',
-            'response_time',
-            'is_active', 'is_active'
-        ]));
+        $data = $request->only([
+            'name', 'directory_id', 'job_category_id', 'avatar', 'bio', 'address',
+            'hourly_rate', 'response_time', 'is_active'
+        ]);
+
+        $profile = $this->profiles->updateForUser($request->user()->id, $id, $data);
+
+        if (!$profile) {
+            return response()->json([
+                'message' => 'Profile not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'profile' => $profile->fresh(),
+            'profile' => $profile,
         ]);
     }
 
@@ -115,8 +118,13 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $profile = $request->user()->profiles()->findOrFail($id);
-        $profile->delete();
+        $deleted = $this->profiles->deleteForUser($request->user()->id, $id);
+
+        if (!$deleted) {
+            return response()->json([
+                'message' => 'Profile not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Profile deleted successfully',
@@ -133,16 +141,16 @@ class ProfileController extends Controller
             'profile_id' => 'required|exists:profiles,id',
         ]);
 
-        $profile = $request->user()->profiles()
-            ->with(['directory', 'user', 'jobCategory'])
-            ->where('id', $request->profile_id)
-            ->where('is_active', true)
-            ->firstOrFail();
+        $profile = $this->profiles->findActiveProfile($request->user()->id, $request->profile_id);
 
-        // Revoke current token
+        if (!$profile) {
+            return response()->json([
+                'message' => 'Profile not found or inactive',
+            ], 404);
+        }
+
         $request->user()->currentAccessToken()->delete();
 
-        // Create new token with profile context
         $token = $request->user()->createToken(
             'auth_token',
             ['profile:' . $profile->id],
@@ -165,21 +173,16 @@ class ProfileController extends Controller
     public function current(Request $request)
     {
         $token = $request->user()->currentAccessToken();
-        $abilities = $token->abilities;
+        $abilities = $token?->abilities ?? [];
 
-        // Extract profile ID from abilities
-        $profileAbility = collect($abilities)->first(function ($ability) {
-            return str_starts_with($ability, 'profile:');
-        });
+        $profileAbility = collect($abilities)->first(fn($ability) => str_starts_with($ability, 'profile:'));
 
         if ($profileAbility) {
             $profileId = str_replace('profile:', '', $profileAbility);
-            $profile = $request->user()->profiles()->find($profileId);
+            $profile = $this->profiles->findByUser($request->user()->id, (int)$profileId);
 
             if ($profile) {
-                return response()->json([
-                    'profile' => $profile,
-                ]);
+                return response()->json(['profile' => $profile]);
             }
         }
 
@@ -195,7 +198,7 @@ class ProfileController extends Controller
      */
     public function active(Request $request)
     {
-        $profiles = $request->user()->activeProfiles()->with('directory')->get();
+        $profiles = $this->profiles->activeByUser($request->user()->id);
 
         return response()->json([
             'profiles' => $profiles,

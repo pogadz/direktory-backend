@@ -4,17 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Repositories\Contracts\GalleryRepositoryInterface;
 
 class GalleryController extends Controller
 {
+    protected $gallery;
+
+    public function __construct(GalleryRepositoryInterface $gallery)
+    {
+        $this->gallery = $gallery;
+    }
+
     /**
      * @group Gallery
      * List all gallery items for a profile
      */
     public function index(Request $request, $profileId)
     {
-        $profile = $request->user()->profiles()->findOrFail($profileId);
-        $items = $profile->gallery()->latest()->get();
+        $items = $this->gallery->allByProfile($profileId);
 
         return response()->json([
             'gallery' => $items,
@@ -28,8 +35,6 @@ class GalleryController extends Controller
      */
     public function store(Request $request, $profileId)
     {
-        $profile = $request->user()->profiles()->findOrFail($profileId);
-
         $request->validate([
             'image'       => 'required|string',
             'title'       => 'required|string|max:255',
@@ -37,7 +42,7 @@ class GalleryController extends Controller
             'price'       => 'nullable|numeric|min:0',
         ]);
 
-        $item = $profile->gallery()->create($request->only(['image', 'title', 'description', 'price']));
+        $item = $this->gallery->create($profileId, $request->only(['image', 'title', 'description', 'price']));
 
         return response()->json([
             'message' => 'Gallery item created successfully',
@@ -51,8 +56,13 @@ class GalleryController extends Controller
      */
     public function show(Request $request, $profileId, $id)
     {
-        $profile = $request->user()->profiles()->findOrFail($profileId);
-        $item = $profile->gallery()->findOrFail($id);
+        $item = $this->gallery->find($profileId, $id);
+
+        if (!$item) {
+            return response()->json([
+                'message' => 'Gallery item not found',
+            ], 404);
+        }
 
         return response()->json([
             'item' => $item,
@@ -65,9 +75,6 @@ class GalleryController extends Controller
      */
     public function update(Request $request, $profileId, $id)
     {
-        $profile = $request->user()->profiles()->findOrFail($profileId);
-        $item = $profile->gallery()->findOrFail($id);
-
         $request->validate([
             'image'       => 'sometimes|string',
             'title'       => 'sometimes|string|max:255',
@@ -75,11 +82,17 @@ class GalleryController extends Controller
             'price'       => 'nullable|numeric|min:0',
         ]);
 
-        $item->update($request->only(['image', 'title', 'description', 'price']));
+        $item = $this->gallery->update($profileId, $id, $request->only(['image', 'title', 'description', 'price']));
+
+        if (!$item) {
+            return response()->json([
+                'message' => 'Gallery item not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Gallery item updated successfully',
-            'item'    => $item->fresh(),
+            'item'    => $item,
         ]);
     }
 
@@ -89,9 +102,13 @@ class GalleryController extends Controller
      */
     public function destroy(Request $request, $profileId, $id)
     {
-        $profile = $request->user()->profiles()->findOrFail($profileId);
-        $item = $profile->gallery()->findOrFail($id);
-        $item->delete();
+        $deleted = $this->gallery->delete($profileId, $id);
+
+        if (!$deleted) {
+            return response()->json([
+                'message' => 'Gallery item not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Gallery item deleted successfully',

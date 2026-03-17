@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\JobCategory;
 use Illuminate\Http\Request;
+use App\Repositories\Contracts\JobCategoryRepositoryInterface;
 
 class JobCategoryController extends Controller
 {
+    protected $categories;
+
+    public function __construct(JobCategoryRepositoryInterface $categories)
+    {
+        $this->categories = $categories;
+    }
+
     /**
      * @group Job Category
      * Get all job categories
@@ -15,7 +22,7 @@ class JobCategoryController extends Controller
      */
     public function index()
     {
-        $categories = JobCategory::orderBy('name')->get();
+        $categories = $this->categories->allOrderedByName();
 
         return response()->json([
             'job_categories' => $categories,
@@ -30,7 +37,13 @@ class JobCategoryController extends Controller
      */
     public function show($id)
     {
-        $category = JobCategory::findOrFail($id);
+        $category = $this->categories->findById($id);
+
+        if (!$category) {
+            return response()->json([
+                'message' => 'Job category not found',
+            ], 404);
+        }
 
         return response()->json([
             'job_category' => $category,
@@ -43,13 +56,11 @@ class JobCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255|unique:job_categories,name',
         ]);
 
-        $category = JobCategory::create([
-            'name' => $request->name,
-        ]);
+        $category = $this->categories->create($validated);
 
         return response()->json([
             'message' => 'Job category created successfully',
@@ -63,17 +74,21 @@ class JobCategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $category = JobCategory::findOrFail($id);
-
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255|unique:job_categories,name,' . $id,
         ]);
 
-        $category->update(['name' => $request->name]);
+        $category = $this->categories->update($id, $validated);
+
+        if (!$category) {
+            return response()->json([
+                'message' => 'Job category not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Job category updated successfully',
-            'job_category' => $category->fresh(),
+            'job_category' => $category,
         ]);
     }
 
@@ -83,8 +98,13 @@ class JobCategoryController extends Controller
      */
     public function destroy($id)
     {
-        $category = JobCategory::findOrFail($id);
-        $category->delete();
+        $deleted = $this->categories->delete($id);
+
+        if (!$deleted) {
+            return response()->json([
+                'message' => 'Job category not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Job category deleted successfully',
