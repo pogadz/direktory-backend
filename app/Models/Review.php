@@ -16,4 +16,9 @@ class Review extends Model
         'rating',
         'comment'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

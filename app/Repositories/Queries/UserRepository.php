@@ -5,6 +5,7 @@ namespace App\Repositories\Queries;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -13,12 +14,12 @@ class UserRepository implements UserRepositoryInterface
         return User::with('user_detail')->get();
     }
 
-    public function findByIdWithDetails(int $id)
+    public function findByIdWithDetails(int $id): ?Model
     {
         return User::with('user_detail')->find($id);
     }
 
-    public function updateUserAndDetails(int $userId, array $userData, array $detailData)
+    public function updateUserAndDetails(int $userId, array $userData, array $detailData): ?Model
     {
         $user = User::find($userId);
 

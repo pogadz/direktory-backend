@@ -17,11 +17,41 @@ class BookingController extends Controller
 
     /**
      * @group Booking
-     * Get all bookings
+     * Get all bookings for the authenticated user
+     *
+     * @queryParam profile_id integer Filter by profile ID. Example: 1
+     * @queryParam directory_id integer Filter by directory ID. Example: 1
+     * @queryParam job_category_id integer Filter by job category ID. Example: 1
+     * @queryParam status string Filter by booking status (pending, accepted, completed, cancelled). Example: pending
+     * @queryParam requested_at_from date Filter bookings requested after this date format(2026-01-01). Example: "".
+     * @queryParam requested_at_to date Filter bookings requested before this date. Example: "".
+     * @queryParam accepted_at_from date Filter bookings accepted after this date. Example: "".
+     * @queryParam accepted_at_to date Filter bookings accepted before this date. Example: "".
+     * @queryParam completed_at_from date Filter bookings completed after this date. Example: "".
+     * @queryParam completed_at_to date Filter bookings completed before this date. Example: "".
+     * @queryParam cancelled_at_from date Filter bookings cancelled after this date. Example: "".
+     * @queryParam cancelled_at_to date Filter bookings cancelled before this date. Example: "".
+     * @queryParam created_at_from date Filter bookings created after this date. Example: "".
+     * @queryParam created_at_to date Filter bookings created before this date. Example: "".
      */
     public function index(Request $request)
     {
-        $bookings = $this->bookings->allByUser($request->user()->id);
+        $user = $request->user();
+
+        // Only allow filtering fields
+        $filters = $request->only([
+            'profile_id',
+            'directory_id',
+            'job_category_id',
+            'status',
+            'requested_at_from', 'requested_at_to',
+            'accepted_at_from', 'accepted_at_to',
+            'completed_at_from', 'completed_at_to',
+            'cancelled_at_from', 'cancelled_at_to',
+            'created_at_from', 'created_at_to',
+        ]);
+
+        $bookings = $this->bookings->allByUser($user->id, $filters);
 
         return response()->json([
             'bookings' => $bookings,

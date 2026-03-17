@@ -11,7 +11,7 @@ class ProfileRepository implements ProfileRepositoryInterface
     public function allByUser(int $userId): Collection
     {
         return Profile::where('user_id', $userId)
-            ->with('directory')
+            ->with(['directory', 'user.userDetail', 'reviews.user', 'bookings' => fn ($q) => $q->where('status', 'completed')])
             ->get();
     }
 
@@ -19,7 +19,7 @@ class ProfileRepository implements ProfileRepositoryInterface
     {
         return Profile::where('user_id', $userId)
             ->where('is_active', true)
-            ->with('directory')
+            ->with(['directory', 'user.userDetail', 'reviews.user', 'bookings' => fn ($q) => $q->where('status', 'completed')])
             ->get();
     }
 
@@ -27,7 +27,7 @@ class ProfileRepository implements ProfileRepositoryInterface
     {
         return Profile::where('user_id', $userId)
             ->where('id', $profileId)
-            ->with('directory')
+            ->with(['directory', 'user.userDetail', 'reviews.user', 'bookings' => fn ($q) => $q->where('status', 'completed')])
             ->first();
     }
 
@@ -72,7 +72,7 @@ class ProfileRepository implements ProfileRepositoryInterface
         return Profile::where('user_id', $userId)
             ->where('id', $profileId)
             ->where('is_active', true)
-            ->with(['directory', 'user', 'jobCategory'])
+            ->with(['directory', 'user.userDetail', 'jobCategory', 'reviews.user', 'bookings' => fn ($q) => $q->where('status', 'completed')])
             ->first();
     }
 }

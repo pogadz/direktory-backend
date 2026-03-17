@@ -32,7 +32,7 @@ class ProfileResource extends JsonResource
                 'avatar' => $this->avatar ?? $this->user?->userDetail?->avatar,
                 'profession' => $this->whenLoaded('jobCategory', fn () => $this->jobCategory?->name) ?? $this->user?->userDetail?->profession,
                 'status_text' => $this->bio ?? $this->user?->userDetail?->status_text,
-                'status_emoji' => $this->user?->userDetail?->status_emoji,
+                'status_emoji' => $this->whenLoaded('user', fn () => $this->user?->userDetail?->status_emoji),
                 'location' => $this->address,
 
                 'verified' => $this->whenLoaded(
@@ -40,11 +40,25 @@ class ProfileResource extends JsonResource
                     fn () => !is_null($this->user?->email_verified_at)
                 ),
 
-                'rating' => null, // todo: add reviews system
-                'reviews' => null, // todo: add reviews table
+                'rating' => $this->whenLoaded('reviews', function () {
+                    $reviews = $this->reviews;
+                    if ($reviews->isEmpty()) return null;
+                    return round($reviews->avg(fn ($r) => (float) $r->rating), 1);
+                }),
+                'reviews' => $this->whenLoaded('reviews', fn () => $this->reviews->map(fn ($review) => [
+                    'id'         => $review->id,
+                    'rating'     => $review->rating,
+                    'comment'    => $review->comment,
+                    'created_at' => $review->created_at,
+                    'reviewer'   => $review->user ? [
+                        'id'        => $review->user->id,
+                        'firstname' => $review->user->firstname,
+                        'lastname'  => $review->user->lastname,
+                    ] : null,
+                ])),
 
                 'hourly_rate' => $this->hourly_rate,
-                'completed_jobs' => $this->completed_jobs,
+                'completed_jobs' => $this->whenLoaded('bookings', fn () => $this->bookings->count()),
                 'response_time' => $this->response_time,
             ],
         ];
