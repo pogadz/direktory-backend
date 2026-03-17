@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             NormalUsersSeeder::class,
             ProfileSeeder::class,
             GallerySeeder::class,
+            BookingSeeder::class,
+            ReviewSeeder::class,
         ]);
 
         $this->command->info('');

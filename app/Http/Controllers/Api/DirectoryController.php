@@ -3,19 +3,25 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Directory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Repositories\Contracts\DirectoryRepositoryInterface;
 
 class DirectoryController extends Controller
 {
+    protected $directories;
+
+    public function __construct(DirectoryRepositoryInterface $directories)
+    {
+        $this->directories = $directories;
+    }
+
     /**
      * @group Directory
      * List all directories
      */
     public function index()
     {
-        $directories = Directory::latest()->get();
+        $directories = $this->directories->all();
 
         return response()->json([
             'directories' => $directories,
@@ -33,10 +39,7 @@ class DirectoryController extends Controller
             'name' => 'required|string|max:255|unique:directories,name',
         ]);
 
-        $directory = Directory::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-        ]);
+        $directory = $this->directories->create($request->only('name'));
 
         return response()->json([
             'message'   => 'Directory created successfully',
@@ -50,7 +53,13 @@ class DirectoryController extends Controller
      */
     public function show($id)
     {
-        $directory = Directory::findOrFail($id);
+        $directory = $this->directories->find($id);
+
+        if (!$directory) {
+            return response()->json([
+                'message' => 'Directory not found',
+            ], 404);
+        }
 
         return response()->json([
             'directory' => $directory,
@@ -63,20 +72,21 @@ class DirectoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $directory = Directory::findOrFail($id);
-
         $request->validate([
             'name' => 'required|string|max:255|unique:directories,name,' . $id,
         ]);
 
-        $directory->update([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-        ]);
+        $directory = $this->directories->update($id, $request->only('name'));
+
+        if (!$directory) {
+            return response()->json([
+                'message' => 'Directory not found',
+            ], 404);
+        }
 
         return response()->json([
             'message'   => 'Directory updated successfully',
-            'directory' => $directory->fresh(),
+            'directory' => $directory,
         ]);
     }
 
@@ -86,8 +96,13 @@ class DirectoryController extends Controller
      */
     public function destroy($id)
     {
-        $directory = Directory::findOrFail($id);
-        $directory->delete();
+        $deleted = $this->directories->delete($id);
+
+        if (!$deleted) {
+            return response()->json([
+                'message' => 'Directory not found',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Directory deleted successfully',

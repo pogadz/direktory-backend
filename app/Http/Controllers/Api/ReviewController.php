@@ -4,17 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Review;
+use App\Repositories\Contracts\ReviewRepositoryInterface;
 
 class ReviewController extends Controller
 {
+    protected $reviews;
+
+    public function __construct(ReviewRepositoryInterface $reviews)
+    {
+        $this->reviews = $reviews;
+    }
+
     /**
      * @group Review
      * List all review ratings
      */
     public function index()
     {
-        $reviews = Review::latest()->paginate(10);
+        $reviews = $this->reviews->paginateLatest(10);
 
         return response()->json([
             'status' => true,
@@ -28,7 +35,7 @@ class ReviewController extends Controller
      */
     public function show($id)
     {
-        $review = Review::find($id);
+        $review = $this->reviews->findById($id);
 
         if (!$review) {
             return response()->json([
@@ -56,13 +63,9 @@ class ReviewController extends Controller
             'comment' => 'nullable|string'
         ]);
 
-        $review = Review::create([
-            'booking_id' => $validated['booking_id'],
-            'profile_id' => $validated['profile_id'],
-            'user_id' => auth()->id(),
-            'rating' => $validated['rating'],
-            'comment' => $validated['comment'] ?? null
-        ]);
+        $validated['user_id'] = auth()->id();
+
+        $review = $this->reviews->create($validated);
 
         return response()->json([
             'status' => true,
@@ -77,7 +80,12 @@ class ReviewController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $review = Review::find($id);
+        $validated = $request->validate([
+            'rating' => 'sometimes|integer|min:1|max:5',
+            'comment' => 'nullable|string'
+        ]);
+
+        $review = $this->reviews->update($id, $validated);
 
         if (!$review) {
             return response()->json([
@@ -85,13 +93,6 @@ class ReviewController extends Controller
                 'message' => 'Review not found'
             ], 404);
         }
-
-        $validated = $request->validate([
-            'rating' => 'sometimes|integer|min:1|max:5',
-            'comment' => 'nullable|string'
-        ]);
-
-        $review->update($validated);
 
         return response()->json([
             'status' => true,

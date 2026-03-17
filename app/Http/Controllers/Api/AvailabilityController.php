@@ -31,17 +31,17 @@ class AvailabilityController extends Controller
      */
     public function saveAvailability(Request $request)
     {
-        // Request body {
-        //     profile_id: 1,
-        //     availabilities: [
-        //         {
-        //            day: "monday",
-        //            open: "9:00 AM",
-        //            close: "5:00 PM",
-        //            enabled: true
-        //         }
-        //     ]
-        // }
+        /* Request body {
+            profile_id: 1,
+            availabilities: [
+                {
+                   day: "monday",
+                   open: "9:00 AM",
+                   close: "5:00 PM",
+                   enabled: true
+                }
+            ]
+        } */
 
         $request->validate([
             'profile_id' => 'required|integer',

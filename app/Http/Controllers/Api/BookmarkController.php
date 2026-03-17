@@ -4,23 +4,26 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Bookmark;
-use App\Models\Profile;
+use App\Repositories\Contracts\BookmarkRepositoryInterface;
 
 class BookmarkController extends Controller
 {
+    protected $bookmarks;
+
+    public function __construct(BookmarkRepositoryInterface $bookmarks)
+    {
+        $this->bookmarks = $bookmarks;
+    }
+
     /**
      * @group Bookmark
      * Get all bookmarks for the current bookmarker
      */
     public function index(Request $request)
     {
-        $bookmarker = $request->user(); // assuming authenticated user is the bookmarker
+        $bookmarker = $request->user();
 
-        $bookmarks = Bookmark::where('bookmarker_id', $bookmarker->id)
-                             ->where('bookmarker_type', get_class($bookmarker))
-                             ->with('profile') // eager load the bookmarked profile
-                             ->get();
+        $bookmarks = $this->bookmarks->getByBookmarker($bookmarker);
 
         return response()->json([
             'bookmarks' => $bookmarks,
@@ -38,35 +41,19 @@ class BookmarkController extends Controller
             'profile_id' => 'required|exists:profiles,id',
         ]);
 
-        $bookmarker = $request->user(); // could also be a profile if you allow profile bookmarkers
-
+        $bookmarker = $request->user();
         $profileId = $request->profile_id;
 
-        // Check if the bookmark already exists
-        $bookmark = Bookmark::where('bookmarker_id', $bookmarker->id)
-                            ->where('bookmarker_type', get_class($bookmarker))
-                            ->where('profile_id', $profileId)
-                            ->first();
+        $result = $this->bookmarks->toggleBookmark($bookmarker, $profileId);
 
-        if ($bookmark) {
-            // Remove bookmark if it exists (toggle behavior)
-            $bookmark->delete();
-            return response()->json([
-                'message' => 'Bookmark removed successfully',
-            ]);
-        }
-
-        // Create a new bookmark
-        $bookmark = Bookmark::create([
-            'bookmarker_id' => $bookmarker->id,
-            'bookmarker_type' => get_class($bookmarker),
-            'profile_id' => $profileId,
-        ]);
+        $message = $result['action'] === 'created'
+            ? 'Bookmark created successfully'
+            : 'Bookmark removed successfully';
 
         return response()->json([
-            'message' => 'Bookmark created successfully',
-            'bookmark' => $bookmark,
-        ], 201);
+            'message' => $message,
+            'bookmark' => $result['bookmark']
+        ], $result['action'] === 'created' ? 201 : 200);
     }
 
     /**
@@ -77,12 +64,7 @@ class BookmarkController extends Controller
     {
         $bookmarker = $request->user();
 
-        $bookmark = Bookmark::where('id', $id)
-            ->where('bookmarker_id', $bookmarker->id)
-            ->where('bookmarker_type', get_class($bookmarker))
-            ->firstOrFail();
-
-        $bookmark->delete();
+        $this->bookmarks->deleteBookmark($bookmarker, $id);
 
         return response()->json([
             'message' => 'Bookmark deleted successfully',
