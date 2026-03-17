@@ -182,7 +182,7 @@ class ProfileController extends Controller
             $profile = $this->profiles->findByUser($request->user()->id, (int)$profileId);
 
             if ($profile) {
-                return response()->json(['profile' => $profile]);
+                return response()->json(['profile' => new ProfileResource($profile)]);
             }
         }
 

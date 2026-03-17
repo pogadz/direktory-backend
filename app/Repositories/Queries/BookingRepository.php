@@ -9,15 +9,47 @@ use Illuminate\Database\Eloquent\Collection;
 
 class BookingRepository implements BookingRepositoryInterface
 {
-    public function allByUser(int $userId): Collection
+    /**
+     * Get bookings for a user with optional filters
+     */
+    public function allByUser(int $userId, array $filters = []): Collection
     {
-        // Get all profile IDs for the user
         $profileIds = Profile::where('user_id', $userId)->pluck('id');
 
-        // Fetch bookings linked either to the user or their profiles
-        return Booking::where('user_id', $userId)
-            ->orWhereIn('profile_id', $profileIds)
-            ->get();
+        $query = Booking::where(function ($q) use ($userId, $profileIds) {
+            $q->where('user_id', $userId)
+              ->orWhereIn('profile_id', $profileIds);
+        });
+
+        // Apply filters dynamically
+        $query->when(isset($filters['profile_id']), function ($q) use ($filters) {
+            $q->where('profile_id', $filters['profile_id']);
+        });
+
+        $query->when(isset($filters['directory_id']), function ($q) use ($filters) {
+            $q->where('directory_id', $filters['directory_id']);
+        });
+
+        $query->when(isset($filters['job_category_id']), function ($q) use ($filters) {
+            $q->where('job_category_id', $filters['job_category_id']);
+        });
+
+        $query->when(isset($filters['status']), function ($q) use ($filters) {
+            $q->where('status', $filters['status']);
+        });
+
+        // Date filters
+        $dateFields = ['requested_at', 'accepted_at', 'completed_at', 'cancelled_at', 'created_at'];
+        foreach ($dateFields as $field) {
+            if (!empty($filters[$field . '_from'])) {
+                $query->whereDate($field, '>=', $filters[$field . '_from']);
+            }
+            if (!empty($filters[$field . '_to'])) {
+                $query->whereDate($field, '<=', $filters[$field . '_to']);
+            }
+        }
+
+        return $query->orderBy('requested_at', 'desc')->get();
     }
 
     public function find(int $id): ?Booking
