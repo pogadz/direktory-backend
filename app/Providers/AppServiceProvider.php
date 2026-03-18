@@ -9,10 +9,12 @@ use App\Repositories\Contracts\ProfileRepositoryInterface;
 use App\Repositories\Queries\ProfileRepository;
 use App\Repositories\Contracts\GalleryRepositoryInterface;
 use App\Repositories\Queries\GalleryRepository;
-use App\Repositories\Contracts\JobCategoryRepositoryInterface;
-use App\Repositories\Queries\JobRepository;
 use App\Repositories\Contracts\DirectoryRepositoryInterface;
 use App\Repositories\Queries\DirectoryRepository;
+use App\Repositories\Contracts\JobCategoryRepositoryInterface;
+use App\Repositories\Queries\JobRepository;
+use App\Repositories\Contracts\JobSuggestionRepositoryInterface;
+use App\Repositories\Queries\JobSuggestionRepository;
 use App\Repositories\Contracts\BookingRepositoryInterface;
 use App\Repositories\Queries\BookingRepository;
 use App\Repositories\Contracts\ReviewRepositoryInterface;
@@ -50,6 +52,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             JobCategoryRepositoryInterface::class,
             JobCategoryRepository::class
+        );
+
+        $this->app->bind(
+            JobSuggestionRepositoryInterface::class,
+            JobSuggestionRepository::class
         );
 
         $this->app->bind(

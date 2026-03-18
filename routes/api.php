@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\WorkerController;
 use App\Http\Controllers\Api\ProfileRoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\JobCategoryController;
+use App\Http\Controllers\Api\JobSuggestionController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -146,6 +147,17 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
         Route::put('/{id}', [JobCategoryController::class, 'update']);
         Route::delete('/{id}', [JobCategoryController::class, 'destroy']);
     });
+
+    // Job Suggestion
+    Route::prefix('job-suggestions')->group(function () {
+        Route::get('/', [JobSuggestionController::class, 'index']);
+        Route::post('/', [JobSuggestionController::class, 'store']);
+        Route::put('/{id}', [JobSuggestionController::class, 'update']);
+        Route::post('/job-suggestions/{job_suggestion_id}/upvote', [JobSuggestionController::class, 'toggleUpvote']);
+        Route::delete('/{id}', [JobSuggestionController::class, 'destroy']);
+    });
+
+
     // Role Management
     Route::prefix('roles')->group(function () {
         Route::get('/', [RoleController::class, 'index']);
