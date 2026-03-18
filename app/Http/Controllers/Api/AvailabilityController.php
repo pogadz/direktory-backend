@@ -28,6 +28,12 @@ class AvailabilityController extends Controller
      * @group Availability
      * Save availability
      * 
+     * @bodyParam profile_id integer required The ID of the profile. Example: 1
+     * @bodyParam availabilities array required List of availability objects. Example: [{"day":"monday","open":"9:00 AM","close":"5:00 PM","enabled":true}]
+     * @bodyParam availabilities.*.day string required The day of the week. Example: "monday".
+     * @bodyParam availabilities.*.open string The opening time. Example: "9:00 AM".
+     * @bodyParam availabilities.*.close string The closing time. Example: "5:00 PM"
+     * @bodyParam availabilities.*.enabled boolean Whether this day is enabled. Example: true
      */
     public function saveAvailability(Request $request)
     {

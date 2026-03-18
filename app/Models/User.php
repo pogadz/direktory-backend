@@ -93,4 +93,13 @@ class User extends Authenticatable
     {
         return $this->morphMany(Bookmark::class, 'bookmarker');
     }
+
+    /**
+     * Relationship: User upvoted many JobSuggestions
+     */
+    public function upvotedJobSuggestions(): BelongsToMany
+    {
+        return $this->belongsToMany(JobSuggestion::class, 'job_suggestion_user')
+                    ->withTimestamps();
+    }
 }
