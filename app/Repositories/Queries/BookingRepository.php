@@ -5,10 +5,18 @@ namespace App\Repositories\Queries;
 use App\Models\Booking;
 use App\Models\Profile;
 use App\Repositories\Contracts\BookingRepositoryInterface;
+use App\Services\Contracts\CreditServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 class BookingRepository implements BookingRepositoryInterface
 {
+    protected CreditServiceInterface $creditService;
+
+    public function __construct(CreditServiceInterface $creditService)
+    {
+        $this->creditService = $creditService;
+    }
+
     /**
      * Get bookings for a user with optional filters
      */
@@ -78,19 +86,39 @@ class BookingRepository implements BookingRepositoryInterface
 
         $booking->status = $status;
 
+        $user = $booking->profile->user;
+
         switch ($status) {
             case 'pending':
                 $booking->requested_at = now();
                 break;
+
             case 'accepted':
                 $booking->accepted_at = now();
+
+                // Deduct credits when booking is accepted
+                $this->creditService->deduct(
+                    $user,
+                    20, // todo: should be dynamic in global settings
+                    $booking
+                );
                 break;
+
             case 'completed':
                 $booking->completed_at = now();
                 break;
+
             case 'cancelled':
                 $booking->cancelled_at = now();
+
+                // Refund if previously deducted
+                // $this->creditService->refund(
+                //     $user,
+                //     20, // same amount deducted
+                //     $booking
+                // );
                 break;
+
             default:
                 return null;
         }

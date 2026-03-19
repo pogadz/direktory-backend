@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\DirectoryController;
+use App\Http\Controllers\Api\CreditController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\BookmarkController;
@@ -93,6 +94,14 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         });
     });
 
+    // Credits
+    Route::prefix('credits')->group(function () {
+        Route::get('/', [CreditController::class, 'index']);
+        Route::post('/balance', [CreditController::class, 'balance']);
+        Route::post('/top-up', [CreditController::class, 'topUp']);
+        Route::post('/deduct', [CreditController::class, 'deduct']);
+    });
+
     // Bookings
     Route::prefix('bookings')->group(function () {
         Route::get('/', [BookingController::class, 'index']);
@@ -101,8 +110,17 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::post('/{id}/status', [BookingController::class, 'setStatus']);
         Route::delete('/{id}', [BookingController::class, 'archive']);
     });
+    
+    // Job Suggestion
+    Route::prefix('job-suggestions')->group(function () {
+        Route::get('/', [JobSuggestionController::class, 'index']);
+        Route::post('/', [JobSuggestionController::class, 'store']);
+        Route::put('/{id}', [JobSuggestionController::class, 'update']);
+        Route::post('/job-suggestions/{job_suggestion_id}/upvote', [JobSuggestionController::class, 'toggleUpvote']);
+        Route::delete('/{id}', [JobSuggestionController::class, 'destroy']);
+    });
 
-    // Ratings
+    // Reviews
     Route::prefix('reviews')->group(function () {
         Route::get('/', [ReviewController::class, 'index']);
         Route::post('/', [ReviewController::class, 'store']);
@@ -147,16 +165,6 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
         Route::put('/{id}', [JobCategoryController::class, 'update']);
         Route::delete('/{id}', [JobCategoryController::class, 'destroy']);
     });
-
-    // Job Suggestion
-    Route::prefix('job-suggestions')->group(function () {
-        Route::get('/', [JobSuggestionController::class, 'index']);
-        Route::post('/', [JobSuggestionController::class, 'store']);
-        Route::put('/{id}', [JobSuggestionController::class, 'update']);
-        Route::post('/job-suggestions/{job_suggestion_id}/upvote', [JobSuggestionController::class, 'toggleUpvote']);
-        Route::delete('/{id}', [JobSuggestionController::class, 'destroy']);
-    });
-
 
     // Role Management
     Route::prefix('roles')->group(function () {
