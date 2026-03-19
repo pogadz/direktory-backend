@@ -102,4 +102,24 @@ class User extends Authenticatable
         return $this->belongsToMany(JobSuggestion::class, 'job_suggestion_user')
                     ->withTimestamps();
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function credits()
+    {
+        return $this->hasMany(Credit::class);
+    }
+
+    public function creditBalance(): int
+    {
+        return $this->credits()->sum('amount');
+    }
+
+    public function getBalanceAttribute()
+    {
+        return $this->creditBalance();
+    }
 }

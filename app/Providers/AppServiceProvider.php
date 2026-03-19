@@ -3,24 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Repositories\Queries\UserRepository;
-use App\Repositories\Contracts\ProfileRepositoryInterface;
-use App\Repositories\Queries\ProfileRepository;
-use App\Repositories\Contracts\GalleryRepositoryInterface;
-use App\Repositories\Queries\GalleryRepository;
-use App\Repositories\Contracts\DirectoryRepositoryInterface;
-use App\Repositories\Queries\DirectoryRepository;
-use App\Repositories\Contracts\JobCategoryRepositoryInterface;
-use App\Repositories\Queries\JobRepository;
-use App\Repositories\Contracts\JobSuggestionRepositoryInterface;
-use App\Repositories\Queries\JobSuggestionRepository;
-use App\Repositories\Contracts\BookingRepositoryInterface;
-use App\Repositories\Queries\BookingRepository;
-use App\Repositories\Contracts\ReviewRepositoryInterface;
-use App\Repositories\Queries\ReviewRepository;
-use App\Repositories\Contracts\BookmarkRepositoryInterface;
-use App\Repositories\Queries\BookmarkRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,48 +12,53 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            UserRepositoryInterface::class,
-            UserRepository::class
+            \App\Repositories\Contracts\UserRepositoryInterface::class,
+            \App\Repositories\Queries\UserRepository::class
         );
 
         $this->app->bind(
-            ProfileRepositoryInterface::class,
-            ProfileRepository::class
+            \App\Repositories\Contracts\ProfileRepositoryInterface::class,
+            \App\Repositories\Queries\ProfileRepository::class
         );
 
         $this->app->bind(
-            GalleryRepositoryInterface::class,
-            GalleryRepository::class
+            \App\Repositories\Contracts\GalleryRepositoryInterface::class,
+            \App\Repositories\Queries\GalleryRepository::class
         );
 
         $this->app->bind(
-            DirectoryRepositoryInterface::class,
-            DirectoryRepository::class
+            \App\Repositories\Contracts\DirectoryRepositoryInterface::class,
+            \App\Repositories\Queries\DirectoryRepository::class
         );
 
         $this->app->bind(
-            JobCategoryRepositoryInterface::class,
-            JobCategoryRepository::class
+            \App\Repositories\Contracts\JobCategoryRepositoryInterface::class,
+            \App\Repositories\Queries\JobCategoryRepository::class
         );
 
         $this->app->bind(
-            JobSuggestionRepositoryInterface::class,
-            JobSuggestionRepository::class
+            \App\Repositories\Contracts\JobSuggestionRepositoryInterface::class,
+            \App\Repositories\Queries\JobSuggestionRepository::class
         );
 
         $this->app->bind(
-            BookingRepositoryInterface::class,
-            BookingRepository::class
+            \App\Repositories\Contracts\BookingRepositoryInterface::class,
+            \App\Repositories\Queries\BookingRepository::class
         );
 
         $this->app->bind(
-            ReviewRepositoryInterface::class,
-            ReviewRepository::class
+            \App\Repositories\Contracts\ReviewRepositoryInterface::class,
+            \App\Repositories\Queries\ReviewRepository::class
         );
 
         $this->app->bind(
-            BookmarkRepositoryInterface::class,
-            BookmarkRepository::class
+            \App\Repositories\Contracts\BookmarkRepositoryInterface::class,
+            \App\Repositories\Queries\BookmarkRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\Contracts\CreditServiceInterface::class,
+            \App\Services\CreditService::class
         );
     }
 
