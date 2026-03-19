@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\Contracts\CreditServiceInterface;
 
+/**
+ * @group Credit
+ */
 class CreditController extends Controller
 {
     protected CreditServiceInterface $creditService;
@@ -17,7 +20,6 @@ class CreditController extends Controller
     }
 
     /**
-     * @group Credit
      * List all credits / transactions for the user
      */
     public function index(Request $request)
@@ -33,7 +35,6 @@ class CreditController extends Controller
     }
 
     /**
-     * @group Credit
      * Get current user's credit balance
      */
     public function balance(Request $request)
@@ -45,7 +46,6 @@ class CreditController extends Controller
     }
 
     /**
-     * @group Credit
      * Top up credits
      */
     public function topUp(Request $request)
@@ -67,7 +67,6 @@ class CreditController extends Controller
     }
 
     /**
-     * @group Credit
      * Refund credits
      */
     public function refund(Request $request)

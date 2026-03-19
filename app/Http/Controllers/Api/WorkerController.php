@@ -7,11 +7,12 @@ use App\Models\Profile;
 use App\Models\Role;
 use Illuminate\Http\Request;
 
+/**
+ * @group Worker
+ */
 class WorkerController extends Controller
 {
     /**
-     * @group Worker
-     *
      * Filter and list worker profiles.
      * @unauthenticated
      *
@@ -87,8 +88,6 @@ class WorkerController extends Controller
     }
 
     /**
-     * @group Worker
-     *
      * Get a single worker profile.
      * @unauthenticated
      *

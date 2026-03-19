@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Resources\ProfileResource;
 use App\Repositories\Contracts\ProfileRepositoryInterface;
 
+/**
+ * @group Profile
+ */
 class ProfileController extends Controller
 {
     protected $profiles;
@@ -17,7 +20,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Get all profiles for the authenticated user
      */
     public function index(Request $request)
@@ -32,7 +34,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Create a new profile for the authenticated user
      */
     public function store(Request $request)
@@ -57,7 +58,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Get a specific profile
      */
     public function show(Request $request, $id)
@@ -76,7 +76,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Update a profile
      */
     public function update(Request $request, $id)
@@ -113,7 +112,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Delete a profile
      */
     public function destroy(Request $request, $id)
@@ -132,7 +130,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Switch to a different profile
      */
     public function switch(Request $request)
@@ -167,7 +164,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Get the current active profile from token
      */
     public function current(Request $request)
@@ -193,7 +189,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * @group Profile
      * Get active profiles only
      */
     public function active(Request $request)
