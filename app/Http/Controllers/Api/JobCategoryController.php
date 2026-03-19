@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\JobCategoryRepositoryInterface;
 
+/**
+ * @group Job Category
+ */
 class JobCategoryController extends Controller
 {
     protected $categories;
@@ -16,7 +19,6 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Category
      * Get all job categories
      * @unauthenticated
      */
@@ -31,7 +33,6 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Category
      * Get a specific job category
      * @unauthenticated
      */
@@ -51,7 +52,6 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Category
      * Create a new job category
      */
     public function store(Request $request)
@@ -69,7 +69,6 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Category
      * Update a job category
      */
     public function update(Request $request, $id)
@@ -93,7 +92,6 @@ class JobCategoryController extends Controller
     }
 
     /**
-     * @group Job Category
      * Delete a job category
      */
     public function destroy($id)

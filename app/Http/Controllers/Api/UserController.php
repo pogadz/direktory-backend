@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use App\Repositories\Contracts\UserRepositoryInterface;
 
+/**
+ * @group User
+ */
 class UserController extends Controller
 {
     protected $users;
@@ -17,7 +20,6 @@ class UserController extends Controller
     }
 
     /**
-     * @group User
      * List all users with their details
      */
     public function index()
@@ -31,7 +33,6 @@ class UserController extends Controller
     }
 
     /**
-     * @group User
      * Get a specific user with their details
      */
     public function show($id)
@@ -48,7 +49,6 @@ class UserController extends Controller
     }
 
     /**
-     * @group User
      * Update authenticated user
      */
     public function update(Request $request)
@@ -78,7 +78,6 @@ class UserController extends Controller
     }
 
     /**
-     * @group User
      * Delete the authenticated user's account
      */
     public function destroy(Request $request)

@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\JobSuggestionRepositoryInterface;
 
+/**
+ * @group Job Suggestion
+ */
 class JobSuggestionController extends Controller
 {
     protected JobSuggestionRepositoryInterface $repository;
@@ -16,7 +19,6 @@ class JobSuggestionController extends Controller
     }
 
     /**
-     * @group JobSuggestion
      * List all job suggestions
      */
     public function index()
@@ -30,7 +32,6 @@ class JobSuggestionController extends Controller
     }
 
     /**
-     * @group JobSuggestion
      * Create job suggestion
      */
     public function store(Request $request)
@@ -54,7 +55,6 @@ class JobSuggestionController extends Controller
     }
 
     /**
-     * @group JobSuggestion
      * Update job suggestion
      *
      * @urlParam id integer required The ID of the job suggestion. Example: "".
@@ -84,7 +84,6 @@ class JobSuggestionController extends Controller
     }
 
     /**
-     * @group JobSuggestion
      * Toggle upvote
      *
      * @urlParam job_suggestion_id integer required The ID of the job suggestion. Example: "".
@@ -109,7 +108,6 @@ class JobSuggestionController extends Controller
     }
 
     /**
-     * @group JobSuggestion
      * Delete job suggestion
      *
      * @urlParam id integer required The ID of the job suggestion. Example: "".

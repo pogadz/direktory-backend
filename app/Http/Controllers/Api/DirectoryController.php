@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\DirectoryRepositoryInterface;
 
+/**
+ * @group Directory
+ */
 class DirectoryController extends Controller
 {
     protected $directories;
@@ -16,7 +19,6 @@ class DirectoryController extends Controller
     }
 
     /**
-     * @group Directory
      * List all directories
      */
     public function index()
@@ -30,7 +32,6 @@ class DirectoryController extends Controller
     }
 
     /**
-     * @group Directory
      * Create a new directory
      */
     public function store(Request $request)
@@ -48,7 +49,6 @@ class DirectoryController extends Controller
     }
 
     /**
-     * @group Directory
      * Get a specific directory
      */
     public function show($id)
@@ -67,7 +67,6 @@ class DirectoryController extends Controller
     }
 
     /**
-     * @group Directory
      * Update a directory
      */
     public function update(Request $request, $id)
@@ -91,7 +90,6 @@ class DirectoryController extends Controller
     }
 
     /**
-     * @group Directory
      * Delete a directory
      */
     public function destroy($id)

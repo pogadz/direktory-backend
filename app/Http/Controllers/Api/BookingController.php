@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\BookingRepositoryInterface;
 
+/**
+ * @group Booking
+ */
 class BookingController extends Controller
 {
     protected $bookings;
@@ -16,7 +19,6 @@ class BookingController extends Controller
     }
 
     /**
-     * @group Booking
      * Get all bookings for the authenticated user
      *
      * @queryParam profile_id integer Filter by profile ID. Example: 1
@@ -60,7 +62,6 @@ class BookingController extends Controller
     }
 
     /**
-     * @group Booking
      * Create new booking
      */
     public function store(Request $request)
@@ -91,7 +92,6 @@ class BookingController extends Controller
     }
 
     /**
-     * @group Booking
      * Update booking
      */
     public function update(Request $request, $id)
@@ -115,7 +115,6 @@ class BookingController extends Controller
     }
 
     /**
-     * @group Booking
      * Set booking status
      */
     public function setStatus(Request $request, $id, $status = 'pending')
@@ -139,7 +138,6 @@ class BookingController extends Controller
     }
 
     /**
-     * @group Booking
      * Archive booking
      */
     public function archive(Request $request, $id)

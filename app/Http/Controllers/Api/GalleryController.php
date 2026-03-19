@@ -53,6 +53,9 @@ class GalleryController extends Controller
     /**
      * @group Gallery
      * Get a specific gallery item
+     * 
+     * @urlParam profileId integer required The ID of the profile. Example: 1
+     * @urlParam id integer required The ID of the gallery item. Example: 1
      */
     public function show(Request $request, $profileId, $id)
     {

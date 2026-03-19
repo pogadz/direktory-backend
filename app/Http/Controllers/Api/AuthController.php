@@ -9,10 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * @group Auth
+ */
 class AuthController extends Controller
 {
     /**
-     * @group Auth
      * Register a new user
      * @unauthenticated
      * @bodyParam firstname string required Example: John
@@ -49,7 +51,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @group Auth
      * Login user and create token
      * @unauthenticated
      * @bodyParam email string required Example: johnwalker@example.com
@@ -82,7 +83,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @group Auth
      * Logout user (Revoke token)
      */
     public function logout(Request $request)
@@ -95,7 +95,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @group Auth
      * Get authenticated user
      */
     public function user(Request $request)
@@ -104,7 +103,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @group Auth
      * Refresh the user's token
      */
     public function refresh(Request $request)
@@ -126,7 +124,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @group Auth
      * Get all active tokens for the authenticated user
      * @hideFromAPIDocumentation
      */
@@ -142,7 +139,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @group Auth
      * Logout from all devices (revoke all tokens)
      */
     public function logoutAll(Request $request)

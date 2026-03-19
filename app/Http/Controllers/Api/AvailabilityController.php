@@ -4,16 +4,28 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Repositories\Contracts\AvailabilityRepositoryInterface;
 
+/**
+ * @group Availability
+ */
 class AvailabilityController extends Controller
 {
+    protected $availabilityRepository;
+
+    public function __construct(AvailabilityRepositoryInterface $availabilityRepository)
+    {
+        $this->availabilityRepository = $availabilityRepository;
+    }
+
     /**
-     * @group Availability
      * Get Available times by profile user
+     * 
+     * @urlParam profile_id integer required The ID of the profile. Example: 1
      */
     public function getAvailability($profileId)
     {
-        $availability = Availability::where('profile_id', $profileId)->first();
+        $availability = $this->availabilityRepository->getByProfileId($profileId);
 
         if (!$availability) {
             return response()->json([
@@ -21,11 +33,10 @@ class AvailabilityController extends Controller
             ], 404);
         }
 
-        return response()->json($availability->schedule);
+        return response()->json($availability);
     }
 
     /**
-     * @group Availability
      * Save availability
      * 
      * @bodyParam profile_id integer required The ID of the profile. Example: 1
@@ -37,41 +48,21 @@ class AvailabilityController extends Controller
      */
     public function saveAvailability(Request $request)
     {
-        /* Request body {
-            profile_id: 1,
-            availabilities: [
-                {
-                   day: "monday",
-                   open: "9:00 AM",
-                   close: "5:00 PM",
-                   enabled: true
-                }
-            ]
-        } */
-
         $request->validate([
             'profile_id' => 'required|integer',
-            'availabilities' => 'required|array'
+            'availabilities' => 'required|array',
+
+            'availabilities.*.day' => 'nullable|string',
+            'availabilities.*.open' => 'nullable|string',
+            'availabilities.*.close' => 'nullable|string',
+            'availabilities.*.enabled' => 'nullable|boolean',
         ]);
 
-        $schedule = [];
-
-        foreach ($request->availabilities as $dayData) {
-            $schedule[$dayData['day']] = [
-                'open' => $dayData['open'] ?? null,
-                'close' => $dayData['close'] ?? null,
-                'enabled' => $dayData['enabled'] ?? false
-            ];
-        }
-
-        $availabilities = Availability::updateOrCreate(
-            ['profile_id' => $request->profile_id],
-            ['schedule' => $schedule]
+        $availability = $this->availabilityRepository->save(
+            $request->profile_id,
+            $request->availabilities
         );
 
-        return response()->json([
-            'message' => 'Availability saved',
-            'data' => $availabilities
-        ]);
+        return response()->json($availability);
     }
 }

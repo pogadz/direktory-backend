@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\ReviewRepositoryInterface;
 
+/**
+ * @group Review
+ */
 class ReviewController extends Controller
 {
     protected $reviews;
@@ -16,7 +19,6 @@ class ReviewController extends Controller
     }
 
     /**
-     * @group Review
      * List all review ratings
      */
     public function index()
@@ -30,7 +32,6 @@ class ReviewController extends Controller
     }
 
     /**
-     * @group Review
      * Get a specific review rating
      */
     public function show($id)
@@ -51,7 +52,6 @@ class ReviewController extends Controller
     }
 
     /**
-     * @group Review
      * Create a new review rating
      */
     public function store(Request $request)
@@ -75,7 +75,6 @@ class ReviewController extends Controller
     }
 
     /**
-     * @group Review
      * Update a review rating
      */
     public function update(Request $request, $id)

@@ -76,7 +76,7 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::delete('/{id}', [ProfileController::class, 'destroy']);
 
         // Gallery
-        Route::prefix('{profileId}/gallery')->group(function () {
+        Route::prefix('{profile_id}/gallery')->group(function () {
             Route::get('/', [GalleryController::class, 'index']);
             Route::post('/', [GalleryController::class, 'store']);
             Route::get('/{id}', [GalleryController::class, 'show']);
@@ -85,7 +85,7 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         });
 
         // Profile Role
-        Route::prefix('{profileId}/roles')->group(function () {
+        Route::prefix('{profile_id}/roles')->group(function () {
             Route::get('/', [ProfileRoleController::class, 'index']);
             Route::post('/assign', [ProfileRoleController::class, 'assign']);
             Route::post('/revoke', [ProfileRoleController::class, 'revoke']);
@@ -137,7 +137,7 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
 
     // Availability
     Route::prefix('availability')->group(function () {
-        Route::get('/{profileId}', [AvailabilityController::class, 'getAvailability']);
+        Route::get('/{profile_id}', [AvailabilityController::class, 'getAvailability']);
         Route::post('/', [AvailabilityController::class, 'saveAvailability']);
     });
 });

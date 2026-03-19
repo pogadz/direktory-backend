@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\BookmarkRepositoryInterface;
 
+/**
+ * @group Bookmark
+ */
 class BookmarkController extends Controller
 {
     protected $bookmarks;
@@ -16,7 +19,6 @@ class BookmarkController extends Controller
     }
 
     /**
-     * @group Bookmark
      * Get all bookmarks for the current bookmarker
      */
     public function index(Request $request)
@@ -32,7 +34,6 @@ class BookmarkController extends Controller
     }
 
     /**
-     * @group Bookmark
      * Create or toggle a bookmark
      */
     public function store(Request $request)
@@ -57,7 +58,6 @@ class BookmarkController extends Controller
     }
 
     /**
-     * @group Bookmark
      * Delete a bookmark
      */
     public function destroy(Request $request, $id)
