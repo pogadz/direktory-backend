@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\CreditToppedUp;
 use Illuminate\Http\Request;
 use App\Services\Contracts\CreditServiceInterface;
 
@@ -58,11 +59,14 @@ class CreditController extends Controller
         $amount = $request->input('amount');
 
         $transaction = $this->creditService->topUp($user, $amount);
+        $balance = $user->creditBalance();
+
+        $user->notify(new CreditToppedUp($amount, $balance));
 
         return response()->json([
-            'message' => 'Credits added successfully',
+            'message'     => 'Credits added successfully',
             'transaction' => $transaction,
-            'balance' => $user->creditBalance(),
+            'balance'     => $balance,
         ]);
     }
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Profile;
+use App\Notifications\BookingStatusChanged;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\BookingRepositoryInterface;
 
@@ -85,6 +87,12 @@ class BookingController extends Controller
             'status'          => 'pending'
         ]);
 
+        // Notify the worker that a new booking has been requested
+        $workerProfile = Profile::with('user')->find($request->profile_id);
+        if ($workerProfile?->user) {
+            $workerProfile->user->notify(new BookingStatusChanged($booking, 'pending'));
+        }
+
         return response()->json([
             'message' => 'Booking created successfully',
             'booking' => $booking,
@@ -129,6 +137,15 @@ class BookingController extends Controller
             return response()->json([
                 'message' => 'Invalid booking or status',
             ], 400);
+        }
+
+        // Load profile + user
+        $booking->load('profile.user');
+
+        if ($booking->profile?->user) {
+            $booking->profile->user->notify(
+                new BookingStatusChanged($booking, $request->status)
+            );
         }
 
         return response()->json([
