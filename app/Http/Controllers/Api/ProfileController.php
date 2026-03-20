@@ -135,28 +135,35 @@ class ProfileController extends Controller
     public function switch(Request $request)
     {
         $request->validate([
-            'profile_id' => 'required|exists:profiles,id',
+            'profile_id' => 'nullable|exists:profiles,id',
         ]);
 
-        $profile = $this->profiles->findActiveProfile($request->user()->id, $request->profile_id);
+        $user = $request->user();
+        $user->currentAccessToken()->delete();
 
-        if (!$profile) {
+        if ($request->filled('profile_id')) {
+            $profile = $this->profiles->findActiveProfile($user->id, $request->profile_id);
+
+            if (!$profile) {
+                return response()->json(['message' => 'Profile not found'], 404);
+            }
+
+            $token = $user->createToken('auth_token', ['profile:' . $profile->id])->plainTextToken;
+
             return response()->json([
-                'message' => 'Profile not found or inactive',
-            ], 404);
+                'message' => 'Switched to profile successfully',
+                'profile' => new ProfileResource($profile),
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'expires_in' => config('sanctum.expiration', 60) * 60,
+            ]);
         }
 
-        $request->user()->currentAccessToken()->delete();
-
-        $token = $request->user()->createToken(
-            'auth_token',
-            ['profile:' . $profile->id],
-            now()->addMinutes(config('sanctum.expiration', 60))
-        )->plainTextToken;
+        $token = $user->createToken('auth_token', ['user'])->plainTextToken;
 
         return response()->json([
-            'message' => 'Switched to profile successfully',
-            'profile' => new ProfileResource($profile),
+            'message' => 'Switched to main user successfully',
+            'profile' => null,
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => config('sanctum.expiration', 60) * 60,
@@ -184,7 +191,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'profile' => null,
-            'message' => 'No profile selected. Use /profiles/switch to select a profile.',
+            'message' => 'No profile selected. Use /profiles/switch/{profile_id} to select a profile.',
         ]);
     }
 
