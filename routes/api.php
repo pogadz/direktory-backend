@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\AvailabilityController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
@@ -133,6 +134,14 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::get('/', [BookmarkController::class, 'index']);
         Route::post('/', [BookmarkController::class, 'store']);
         Route::put('/{id}', [BookmarkController::class, 'update']);
+    });
+
+    // Notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllRead']);
+        Route::post('/{id}/mark-read', [NotificationController::class, 'markRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
     });
 
     // Availability
