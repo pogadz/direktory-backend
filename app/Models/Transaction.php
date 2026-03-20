@@ -15,13 +15,13 @@ class Transaction extends Model
         'reference_id',
     ];
 
-    const TYPE_BOOKING = 'BOOKING';
-    const TYPE_PAYMENT = 'PAYMENT';
-    const TYPE_REFUND  = 'REFUND';
+    const TYPE_BOOKING = 'booking';
+    const TYPE_PAYMENT = 'payment';
+    const TYPE_REFUND  = 'refund';
 
-    const STATUS_PENDING = 'PENDING';
-    const STATUS_COMPLETED = 'COMPLETED';
-    const STATUS_FAILED = 'FAILED';
+    const STATUS_PENDING = 'pending';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_FAILED = 'failed';
 
     public function user()
     {
