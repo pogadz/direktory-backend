@@ -41,7 +41,8 @@ class CreditService implements CreditServiceInterface
 
             $balance = $user->credits()
                 ->lockForUpdate()
-                ->sum('amount');
+                ->pluck('amount')
+                ->sum();
 
             if ($balance < $amount) {
                 throw new \Exception('Insufficient credits');

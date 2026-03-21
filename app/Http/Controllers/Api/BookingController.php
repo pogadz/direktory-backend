@@ -4,45 +4,27 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
+use App\Models\Booking;
 use App\Notifications\BookingStatusChanged;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\BookingRepositoryInterface;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
-/**
- * @group Booking
- */
 class BookingController extends Controller
 {
-    protected $bookings;
+    use AuthorizesRequests;
+
+    protected BookingRepositoryInterface $bookings;
 
     public function __construct(BookingRepositoryInterface $bookings)
     {
         $this->bookings = $bookings;
     }
 
-    /**
-     * Get all bookings for the authenticated user
-     *
-     * @queryParam profile_id integer Filter by profile ID. Example: 1
-     * @queryParam directory_id integer Filter by directory ID. Example: 1
-     * @queryParam job_category_id integer Filter by job category ID. Example: 1
-     * @queryParam status string Filter by booking status (pending, accepted, completed, cancelled). Example: pending
-     * @queryParam requested_at_from date Filter bookings requested after this date format(2026-01-01). Example: "".
-     * @queryParam requested_at_to date Filter bookings requested before this date. Example: "".
-     * @queryParam accepted_at_from date Filter bookings accepted after this date. Example: "".
-     * @queryParam accepted_at_to date Filter bookings accepted before this date. Example: "".
-     * @queryParam completed_at_from date Filter bookings completed after this date. Example: "".
-     * @queryParam completed_at_to date Filter bookings completed before this date. Example: "".
-     * @queryParam cancelled_at_from date Filter bookings cancelled after this date. Example: "".
-     * @queryParam cancelled_at_to date Filter bookings cancelled before this date. Example: "".
-     * @queryParam created_at_from date Filter bookings created after this date. Example: "".
-     * @queryParam created_at_to date Filter bookings created before this date. Example: "".
-     */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        // Only allow filtering fields
         $filters = $request->only([
             'profile_id',
             'directory_id',
@@ -63,11 +45,10 @@ class BookingController extends Controller
         ]);
     }
 
-    /**
-     * Create new booking
-     */
     public function store(Request $request)
     {
+        $this->authorize('create', Booking::class);
+
         $request->validate([
             'profile_id'       => 'required|exists:profiles,id',
             'directory_id'     => 'required|exists:directories,id',
@@ -87,10 +68,13 @@ class BookingController extends Controller
             'status'          => 'pending'
         ]);
 
-        // Notify the worker that a new booking has been requested
+        // Notify worker
         $workerProfile = Profile::with('user')->find($request->profile_id);
+
         if ($workerProfile?->user) {
-            $workerProfile->user->notify(new BookingStatusChanged($booking, 'pending'));
+            $workerProfile->user->notify(
+                new BookingStatusChanged($booking, 'pending')
+            );
         }
 
         return response()->json([
@@ -99,22 +83,21 @@ class BookingController extends Controller
         ], 201);
     }
 
-    /**
-     * Update booking
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
             'note' => 'nullable|string',
         ]);
 
-        $booking = $this->bookings->update($id, $request->only('note'));
+        $booking = Booking::find($id);
 
         if (!$booking) {
-            return response()->json([
-                'message' => 'Booking not found',
-            ], 404);
+            return response()->json(['message' => 'Booking not found'], 404);
         }
+
+        $this->authorize('update', $booking);
+
+        $booking = $this->bookings->update($id, $request->only('note'));
 
         return response()->json([
             'message' => 'Booking updated successfully',
@@ -122,14 +105,30 @@ class BookingController extends Controller
         ]);
     }
 
-    /**
-     * Set booking status
-     */
-    public function setStatus(Request $request, $id, $status = 'pending')
+    public function setStatus(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:pending,accepted,completed,cancelled',
         ]);
+
+        $booking = Booking::with('profile.user')->find($id);
+
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        // Map status to policy ability
+        $ability = match ($request->status) {
+            'pending'   => 'pending',
+            'accepted'  => 'accept',
+            'completed' => 'complete',
+            'cancelled' => 'cancel',
+            default     => null,
+        };
+
+        if ($ability) {
+            $this->authorize($ability, $booking);
+        }
 
         $booking = $this->bookings->setStatus($id, $request->status);
 
@@ -139,9 +138,10 @@ class BookingController extends Controller
             ], 400);
         }
 
-        // Load profile + user
+        // Reload relations
         $booking->load('profile.user');
 
+        // Notify worker
         if ($booking->profile?->user) {
             $booking->profile->user->notify(
                 new BookingStatusChanged($booking, $request->status)
@@ -154,18 +154,17 @@ class BookingController extends Controller
         ]);
     }
 
-    /**
-     * Archive booking
-     */
     public function archive(Request $request, $id)
     {
-        $deleted = $this->bookings->archive($id);
+        $booking = Booking::find($id);
 
-        if (!$deleted) {
-            return response()->json([
-                'message' => 'Booking not found',
-            ], 404);
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
         }
+
+        $this->authorize('delete', $booking);
+
+        $this->bookings->archive($id);
 
         return response()->json([
             'message' => 'Booking archived successfully',

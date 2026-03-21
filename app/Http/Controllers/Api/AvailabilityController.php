@@ -25,7 +25,7 @@ class AvailabilityController extends Controller
      */
     public function getAvailability($profileId)
     {
-        $availability = $this->availabilityRepository->getByProfileId($profileId);
+        $availability = $this->availabilityRepository->getProfile($profileId);
 
         if (!$availability) {
             return response()->json([

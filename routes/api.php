@@ -106,10 +106,10 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
     // Bookings
     Route::prefix('bookings')->group(function () {
         Route::get('/', [BookingController::class, 'index']);
-        Route::post('/', [BookingController::class, 'store']);
-        Route::put('/{id}', [BookingController::class, 'update']);
-        Route::post('/{id}/status', [BookingController::class, 'setStatus']);
-        Route::delete('/{id}', [BookingController::class, 'archive']);
+        Route::post('/', [BookingController::class, 'store'])->middleware('permission:booking.create');
+        Route::put('/{id}', [BookingController::class, 'update'])->middleware('permission:booking.update');;
+        Route::post('/{id}/status', [BookingController::class, 'setStatus'])->middleware('permission:booking.setStatus');;
+        Route::delete('/{id}', [BookingController::class, 'archive'])->middleware('permission:booking.delete');;
     });
     
     // Job Suggestion
