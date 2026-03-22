@@ -66,6 +66,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\Contracts\CreditServiceInterface::class,
             \App\Services\CreditService::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Contracts\TransactionRepositoryInterface::class,
+            \App\Repositories\Queries\TransactionRepository::class
+        );
     }
 
     /**

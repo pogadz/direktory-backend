@@ -8,6 +8,7 @@ class Transaction extends Model
 {
     protected $fillable = [
         'user_id',
+        'profile_id',
         'type',
         'amount',
         'status',
@@ -26,6 +27,11 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class);
     }
 
     public function credits()

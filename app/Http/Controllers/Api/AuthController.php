@@ -54,7 +54,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Login user and create token
+     * Login user (Create token)
      * @unauthenticated
      * @bodyParam email string required Example: johnwalker@example.com
      * @bodyParam password string required Minimum 8 characters. Example: password123

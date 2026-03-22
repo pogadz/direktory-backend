@@ -19,6 +19,11 @@ class Booking extends Model
         'status'
     ];
 
+    const PENDING = 'pending';
+    const ACCEPTED = 'accepted';
+    const COMPLETED = 'completed';
+    const CANCELLED = 'cancelled';
+
     public function user()
     {
         return $this->belongsTo(User::class);

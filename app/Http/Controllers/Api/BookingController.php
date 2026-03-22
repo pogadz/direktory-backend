@@ -9,7 +9,11 @@ use App\Notifications\BookingStatusChanged;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\BookingRepositoryInterface;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Enums\BookingStatus;
 
+/**
+ * @group Booking
+ */
 class BookingController extends Controller
 {
     use AuthorizesRequests;
@@ -21,6 +25,9 @@ class BookingController extends Controller
         $this->bookings = $bookings;
     }
 
+    /**
+     * List all bookings for the user
+     */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -45,6 +52,9 @@ class BookingController extends Controller
         ]);
     }
 
+    /**
+     * Create new booking
+     */
     public function store(Request $request)
     {
         $this->authorize('create', Booking::class);
@@ -83,6 +93,22 @@ class BookingController extends Controller
         ], 201);
     }
 
+    /**
+     * Get a specific booking
+     */
+    public function show(Request $request, $id)
+    {
+        $booking = $this->bookings->find($id);
+        $this->authorize('view', $booking);
+
+        return response()->json([
+            'booking' => $booking,
+        ]);
+    }
+
+    /**
+     * Update a booking
+     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -105,6 +131,9 @@ class BookingController extends Controller
         ]);
     }
 
+    /**
+     * Set booking status
+     */
     public function setStatus(Request $request, $id)
     {
         $request->validate([
@@ -117,20 +146,11 @@ class BookingController extends Controller
             return response()->json(['message' => 'Booking not found'], 404);
         }
 
-        // Map status to policy ability
-        $ability = match ($request->status) {
-            'pending'   => 'pending',
-            'accepted'  => 'accept',
-            'completed' => 'complete',
-            'cancelled' => 'cancel',
-            default     => null,
-        };
+        $status = BookingStatus::from($request->status);
 
-        if ($ability) {
-            $this->authorize($ability, $booking);
-        }
+        $this->authorize($status->value, $booking);
 
-        $booking = $this->bookings->setStatus($id, $request->status);
+        $booking = $this->bookings->setStatus($id, $status->value);
 
         if (!$booking) {
             return response()->json([
@@ -138,22 +158,23 @@ class BookingController extends Controller
             ], 400);
         }
 
-        // Reload relations
         $booking->load('profile.user');
 
-        // Notify worker
         if ($booking->profile?->user) {
             $booking->profile->user->notify(
-                new BookingStatusChanged($booking, $request->status)
+                new BookingStatusChanged($booking, $status->value)
             );
         }
 
         return response()->json([
-            'message' => 'Booking status updated successfully',
+            'message' => "Booking status {$booking->status}",
             'booking' => $booking,
         ]);
     }
 
+    /**
+     * Archive a booking
+     */
     public function archive(Request $request, $id)
     {
         $booking = Booking::find($id);

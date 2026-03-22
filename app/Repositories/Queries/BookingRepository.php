@@ -125,7 +125,8 @@ class BookingRepository implements BookingRepositoryInterface
                 $this->creditService->deduct(
                     $user,
                     20, // todo: should be dynamic in global settings
-                    $booking
+                    $booking,
+                    $booking->profile_id
                 );
                 break;
 

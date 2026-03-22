@@ -4,6 +4,7 @@ namespace App\Repositories\Queries;
 
 use App\Models\Bookmark;
 use App\Repositories\Contracts\BookmarkRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
 class BookmarkRepository implements BookmarkRepositoryInterface
 {
@@ -13,7 +14,7 @@ class BookmarkRepository implements BookmarkRepositoryInterface
      * @param object $bookmarker
      * @return void
      */
-    public function getByBookmarker(object $bookmarker)
+    public function getByBookmarker(object $bookmarker): Collection
     {
         return Bookmark::where('bookmarker_id', $bookmarker->id)
             ->where('bookmarker_type', get_class($bookmarker))
@@ -28,7 +29,7 @@ class BookmarkRepository implements BookmarkRepositoryInterface
      * @param integer $profileId
      * @return void
      */
-    public function toggleBookmark(object $bookmarker, int $profileId)
+    public function toggleBookmark(object $bookmarker, int $profileId): array
     {
         $bookmark = Bookmark::where('bookmarker_id', $bookmarker->id)
             ->where('bookmarker_type', get_class($bookmarker))
@@ -62,7 +63,7 @@ class BookmarkRepository implements BookmarkRepositoryInterface
      * @param integer $bookmarkId
      * @return void
      */
-    public function deleteBookmark(object $bookmarker, int $bookmarkId)
+    public function deleteBookmark(object $bookmarker, int $bookmarkId): bool
     {
         $bookmark = Bookmark::where('id', $bookmarkId)
             ->where('bookmarker_id', $bookmarker->id)

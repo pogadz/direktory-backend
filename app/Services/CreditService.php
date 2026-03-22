@@ -5,27 +5,31 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Credit;
 use App\Models\Transaction;
+use App\Enums\TransactionType;
+use App\Enums\TransactionStatus;
+use App\Enums\CreditType;
 use App\Services\Contracts\CreditServiceInterface;
 use Illuminate\Support\Facades\DB;
 
 class CreditService implements CreditServiceInterface
 {
-    public function topUp(User $user, int $amount, $reference = null): Transaction
+    public function topUp(User $user, int $amount, $reference = null, ?int $profileId = null): Transaction
     {
-        return DB::transaction(function () use ($user, $amount, $reference) {
+        return DB::transaction(function () use ($user, $amount, $reference, $profileId) {
 
             $transaction = $user->transactions()->create([
-                'type' => Transaction::TYPE_PAYMENT,
+                'profile_id' => $profileId,
+                'type' => TransactionType::PAYMENT,
                 'amount' => $amount,
-                'status' => Transaction::STATUS_COMPLETED,
+                'status' => TransactionStatus::SUCCESS,
                 'reference_type' => $reference ? get_class($reference) : null,
                 'reference_id' => $reference?->id,
             ]);
 
             $user->credits()->create([
                 'amount' => $amount,
-                'action_type' => Credit::ACTION_TOPUP,
-                'transaction_type' => Transaction::TYPE_PAYMENT,
+                'action_type' => CreditType::TOPUP,
+                'transaction_type' => TransactionType::PAYMENT,
                 'transaction_id' => $transaction->id,
                 'reference_type' => $reference ? get_class($reference) : null,
                 'reference_id' => $reference?->id,
@@ -35,9 +39,9 @@ class CreditService implements CreditServiceInterface
         });
     }
 
-    public function deduct(User $user, int $amount, $reference = null): Transaction
+    public function deduct(User $user, int $amount, $reference = null, ?int $profileId = null): Transaction
     {
-        return DB::transaction(function () use ($user, $amount, $reference) {
+        return DB::transaction(function () use ($user, $amount, $reference, $profileId) {
 
             $balance = $user->credits()
                 ->lockForUpdate()
@@ -49,17 +53,18 @@ class CreditService implements CreditServiceInterface
             }
 
             $transaction = $user->transactions()->create([
-                'type' => Transaction::TYPE_BOOKING,
+                'profile_id' => $profileId,
+                'type' => TransactionType::BOOKING,
                 'amount' => $amount,
-                'status' => Transaction::STATUS_COMPLETED,
+                'status' => TransactionStatus::SUCCESS,
                 'reference_type' => $reference ? get_class($reference) : null,
                 'reference_id' => $reference?->id,
             ]);
 
             $user->credits()->create([
                 'amount' => -$amount,
-                'action_type' => Credit::ACTION_DEDUCT,
-                'transaction_type' => Transaction::TYPE_BOOKING,
+                'action_type' => CreditType::DEDUCT,
+                'transaction_type' => TransactionType::BOOKING,
                 'transaction_id' => $transaction->id,
                 'reference_type' => $reference ? get_class($reference) : null,
                 'reference_id' => $reference?->id,
@@ -69,22 +74,23 @@ class CreditService implements CreditServiceInterface
         });
     }
 
-    public function refund(User $user, int $amount, $reference = null): Transaction
+    public function refund(User $user, int $amount, $reference = null, ?int $profileId = null): Transaction
     {
-        return DB::transaction(function () use ($user, $amount, $reference) {
+        return DB::transaction(function () use ($user, $amount, $reference, $profileId) {
 
             $transaction = $user->transactions()->create([
-                'type' => Transaction::TYPE_REFUND,
+                'profile_id' => $profileId,
+                'type' => TransactionType::REFUND,
                 'amount' => $amount,
-                'status' => Transaction::STATUS_COMPLETED,
+                'status' => TransactionStatus::SUCCESS,
                 'reference_type' => $reference ? get_class($reference) : null,
                 'reference_id' => $reference?->id,
             ]);
 
             $user->credits()->create([
                 'amount' => $amount,
-                'action_type' => Credit::ACTION_REFUND,
-                'transaction_type' => Transaction::TYPE_REFUND,
+                'action_type' => TransactionType::REFUND,
+                'transaction_type' => TransactionType::REFUND,
                 'transaction_id' => $transaction->id,
                 'reference_type' => $reference ? get_class($reference) : null,
                 'reference_id' => $reference?->id,

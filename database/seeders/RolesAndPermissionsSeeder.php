@@ -29,6 +29,13 @@ class RolesAndPermissionsSeeder extends Seeder
                 ['name' => 'worker.update', 'display_name' => 'Update Worker', 'description' => 'Update worker profiles', 'category' => 'worker'],
                 ['name' => 'worker.delete', 'display_name' => 'Delete Worker', 'description' => 'Delete worker profiles', 'category' => 'worker'],
 
+                // Booking permissions
+                ['name' => 'booking.view',      'display_name' => 'View Booking',      'description' => 'View Booking',                 'category' => 'booking'],
+                ['name' => 'booking.create',    'display_name' => 'Create Booking',    'description' => 'Create a new booking request', 'category' => 'booking'],
+                ['name' => 'booking.update',    'display_name' => 'Update Booking',    'description' => 'Update booking note',          'category' => 'booking'],
+                ['name' => 'booking.set-status', 'display_name' => 'Set Booking Status','description' => 'Change booking status',       'category' => 'booking'],
+                ['name' => 'booking.delete',    'display_name' => 'Delete Booking',    'description' => 'Archive a booking',            'category' => 'booking'],
+
                 // Admin permissions (for middleware checks)
                 ['name' => 'manage-roles',       'display_name' => 'Manage Roles',       'description' => 'Create, edit, and delete roles',       'category' => 'admin'],
                 ['name' => 'manage-permissions', 'display_name' => 'Manage Permissions', 'description' => 'Create, edit, and delete permissions', 'category' => 'admin'],
@@ -74,14 +81,14 @@ class RolesAndPermissionsSeeder extends Seeder
             // Admin gets all permissions
             $admin->permissions()->sync(Permission::all()->pluck('id'));
 
-            // User gets user.* permissions
+            // User gets user.* + booking.* permissions (can create, cancel, update bookings)
             $user->permissions()->sync(
-                Permission::where('category', 'user')->pluck('id')
+                Permission::whereIn('category', ['user', 'booking'])->pluck('id')
             );
 
-            // Worker gets worker.* permissions
+            // Worker gets worker.* + booking.* permissions (can accept, complete bookings)
             $worker->permissions()->sync(
-                Permission::where('category', 'worker')->pluck('id')
+                Permission::whereIn('category', ['worker', 'booking'])->pluck('id')
             );
 
             $this->command->info('✅ Roles and Permissions seeded successfully!');

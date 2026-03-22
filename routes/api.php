@@ -15,14 +15,15 @@ use App\Http\Controllers\Api\CreditController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\BookmarkController;
+use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
 Route::middleware(['validate.api', 'throttle:10,1'])->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
 
     // Job Categories (public read)
     Route::prefix('job-categories')->group(function () {
@@ -105,11 +106,12 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
 
     // Bookings
     Route::prefix('bookings')->group(function () {
-        Route::get('/', [BookingController::class, 'index']);
+        Route::get('/', [BookingController::class, 'index'])->middleware('permission:booking.view');
+        Route::get('/{id}', [BookingController::class, 'show'])->middleware('permission:booking.view');
         Route::post('/', [BookingController::class, 'store'])->middleware('permission:booking.create');
-        Route::put('/{id}', [BookingController::class, 'update'])->middleware('permission:booking.update');;
-        Route::post('/{id}/status', [BookingController::class, 'setStatus'])->middleware('permission:booking.setStatus');;
-        Route::delete('/{id}', [BookingController::class, 'archive'])->middleware('permission:booking.delete');;
+        Route::put('/{id}', [BookingController::class, 'update'])->middleware('permission:booking.update');
+        Route::post('/{id}/status', [BookingController::class, 'setStatus'])->middleware('permission:booking.set-status');
+        Route::delete('/{id}', [BookingController::class, 'archive'])->middleware('permission:booking.delete');
     });
     
     // Job Suggestion
@@ -134,6 +136,13 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::get('/', [BookmarkController::class, 'index']);
         Route::post('/', [BookmarkController::class, 'store']);
         Route::put('/{id}', [BookmarkController::class, 'update']);
+    });
+
+    // Transaction
+    Route::prefix('transactions')->group(function () {
+        Route::get('/', [TransactionController::class, 'index']);
+        Route::get('/{id}', [TransactionController::class, 'show']);
+        Route::get('/profile/{profile_id}', [TransactionController::class, 'getByProfile']);
     });
 
     // Notifications

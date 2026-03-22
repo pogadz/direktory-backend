@@ -4,13 +4,19 @@ namespace App\Policies;
 
 use App\Models\Booking;
 use App\Models\User;
+use App\Services\ProfileService;
 
 class BookingPolicy
 {
+    public function view(User $user, Booking $booking): bool
+    {
+        return true;
+    }
+
     public function create(User $user): bool
     {
-        // Only users without profiles can create bookings
-        return $user->profiles()->count() === 0;
+        // Only users not currently acting as a profile can create bookings
+        return !app(ProfileService::class)->isUsingProfile($user);
     }
 
     public function update(User $user, Booking $booking): bool
@@ -25,19 +31,23 @@ class BookingPolicy
         return $booking->user_id === $user->id;
     }
 
-    public function accept(User $user, Booking $booking): bool
+    public function accepted(User $user, Booking $booking): bool
     {
         // Only the worker (profile owner) can accept booking
-        return $booking->profile->user_id === $user->id;
+        $activeProfileId = app(ProfileService::class)->getActiveProfileId($user);
+
+        return $activeProfileId !== null && (int) $activeProfileId === (int) $booking->profile_id;
     }
 
-    public function complete(User $user, Booking $booking): bool
+    public function completed(User $user, Booking $booking): bool
     {
         // Only the worker (profile owner) can complete booking
-        return $booking->profile->user_id === $user->id;
+        $activeProfileId = app(ProfileService::class)->getActiveProfileId($user);
+
+        return $activeProfileId !== null && (int) $activeProfileId === (int) $booking->profile_id;
     }
 
-    public function cancel(User $user, Booking $booking): bool
+    public function cancelled(User $user, Booking $booking): bool
     {
         // Only the user can cancel booking
         return $booking->user_id === $user->id;
@@ -45,7 +55,6 @@ class BookingPolicy
 
     public function delete(User $user, Booking $booking): bool
     {
-        // No one can delete the booking
         return false;
     }
 
