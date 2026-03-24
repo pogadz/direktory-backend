@@ -23,16 +23,11 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at,
             'joined' => Carbon::parse($this->created_at)->format('F Y'),
             'verified' => false,
-            'rating' => null,
-            'reviews' => null,
             'avatar' => $this->user_detail?->avatar,
             'profession' => $this->user_detail?->profession,
             'status_emoji' => $this->user_detail?->status_emoji,
             'status_text' => $this->user_detail?->status_text,
-            'location' => $this->user_detail?->location,
-            'hourly_rate' => null,
-            'completed_jobs' => null,
-            'response_time' => $this->user_detail?->responseTime,
+            'location' => $this->user_detail?->location
         ];
     }
 }

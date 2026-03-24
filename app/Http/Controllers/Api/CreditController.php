@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\CreditToppedUp;
-use Illuminate\Http\Request;
 use App\Services\Contracts\CreditServiceInterface;
+use App\Services\ProfileService;
+use Illuminate\Http\Request;
 
 /**
  * @group Credit
@@ -58,7 +59,8 @@ class CreditController extends Controller
         $user = $request->user();
         $amount = $request->input('amount');
 
-        $transaction = $this->creditService->topUp($user, $amount);
+        $profileId = app(ProfileService::class)->getActiveProfileId($user);
+        $transaction = $this->creditService->topUp($user, $amount, null, $profileId);
         $balance = $user->creditBalance();
 
         $user->notify(new CreditToppedUp($amount, $balance));

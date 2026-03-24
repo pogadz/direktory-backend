@@ -60,16 +60,35 @@ class BookingRepository implements BookingRepositoryInterface
         return $query->orderBy('requested_at', 'desc')->get();
     }
 
+    /**
+     * Get specific booking
+     *
+     * @param integer $id
+     * @return Booking|null
+     */
     public function find(int $id): ?Booking
     {
         return Booking::find($id);
     }
 
+    /**
+     * Create booking
+     *
+     * @param array $data
+     * @return Booking
+     */
     public function create(array $data): Booking
     {
         return Booking::create($data);
     }
 
+    /**
+     * Update booking
+     *
+     * @param integer $id
+     * @param array $data
+     * @return Booking|null
+     */
     public function update(int $id, array $data): ?Booking
     {
         $booking = Booking::find($id);
@@ -79,6 +98,12 @@ class BookingRepository implements BookingRepositoryInterface
         return $booking;
     }
 
+    /**
+     * Set booking status
+     *
+     * @param integer $id
+     * @return bool
+     */
     public function setStatus(int $id, string $status): ?Booking
     {
         $booking = Booking::find($id);
@@ -100,7 +125,8 @@ class BookingRepository implements BookingRepositoryInterface
                 $this->creditService->deduct(
                     $user,
                     20, // todo: should be dynamic in global settings
-                    $booking
+                    $booking,
+                    $booking->profile_id
                 );
                 break;
 
@@ -128,6 +154,12 @@ class BookingRepository implements BookingRepositoryInterface
         return $booking;
     }
 
+    /**
+     * Archive booking
+     *
+     * @param integer $id
+     * @return bool
+     */
     public function archive(int $id): bool
     {
         $booking = Booking::find($id);

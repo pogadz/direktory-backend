@@ -7,9 +7,9 @@ use App\Models\Transaction;
 
 interface CreditServiceInterface
 {
-    public function topUp(User $user, int $amount, $reference = null): Transaction;
+    public function topUp(User $user, int $amount, $reference = null, ?int $profileId = null): Transaction;
 
-    public function deduct(User $user, int $amount, $reference = null): Transaction;
+    public function deduct(User $user, int $amount, $reference = null, ?int $profileId = null): Transaction;
 
-    public function refund(User $user, int $amount, $reference = null): Transaction;
+    public function refund(User $user, int $amount, $reference = null, ?int $profileId = null): Transaction;
 }

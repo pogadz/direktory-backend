@@ -8,21 +8,46 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class JobSuggestionRepository implements JobSuggestionRepositoryInterface
 {
+    /**
+     * Get all job suggestions
+     *
+     * @param integer $perPage
+     * @return LengthAwarePaginator
+     */
     public function allPaginated(int $perPage = 10): LengthAwarePaginator
     {
         return JobSuggestion::paginate($perPage);
     }
 
+    /**
+     * Get specific job suggestion
+     *
+     * @param integer $id
+     * @return JobSuggestion|null
+     */
     public function find(int $id): ?JobSuggestion
     {
         return JobSuggestion::find($id);
     }
 
+    /**
+     * Create job suggestion
+     *
+     * @param array $data
+     * @return JobSuggestion
+     */
     public function create(array $data): JobSuggestion
     {
         return JobSuggestion::create($data);
     }
 
+    /**
+     * Update job suggestion
+     *
+     * @param integer $id
+     * @param array $data
+     * @return JobSuggestion|null
+     */
     public function update(int $id, array $data): ?JobSuggestion
     {
         $jobSuggestion = $this->find($id);
@@ -32,6 +57,12 @@ class JobSuggestionRepository implements JobSuggestionRepositoryInterface
         return $jobSuggestion;
     }
 
+    /**
+     * Delete job suggestion
+     *
+     * @param integer $id
+     * @return boolean
+     */
     public function delete(int $id): bool
     {
         $jobSuggestion = $this->find($id);
@@ -40,6 +71,13 @@ class JobSuggestionRepository implements JobSuggestionRepositoryInterface
         return $jobSuggestion->delete();
     }
 
+    /**
+     * Toggle job suggestion upvote
+     *
+     * @param integer $jobSuggestionId
+     * @param integer $userId
+     * @return array
+     */
     public function toggleUpvote(int $jobSuggestionId, int $userId): array
     {
         $jobSuggestion = $this->find($jobSuggestionId);

@@ -7,6 +7,12 @@ use App\Repositories\Contracts\AvailabilityRepositoryInterface;
 
 class AvailabilityRepository implements AvailabilityRepositoryInterface
 {
+    /**
+     * Get availabilities by profile 
+     *
+     * @param integer $profileId
+     * @return void
+     */
     public function getByProfileId(int $profileId)
     {
         $availability = Availability::where('profile_id', $profileId)->first();
@@ -21,6 +27,13 @@ class AvailabilityRepository implements AvailabilityRepositoryInterface
         ];
     }
 
+    /**
+     * Save availabilities by profile
+     *
+     * @param integer $profileId
+     * @param array $availabilities
+     * @return void
+     */
     public function save(int $profileId, array $availabilities)
     {
         $schedule = [];
@@ -60,6 +73,12 @@ class AvailabilityRepository implements AvailabilityRepositoryInterface
         ];
     }
 
+    /**
+     * Format availabilities object to array
+     *
+     * @param [type] $schedule
+     * @return array
+     */
     private function transformSchedule($schedule)
     {
         $formatted = [];

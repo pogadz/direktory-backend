@@ -9,22 +9,50 @@ use Illuminate\Database\Eloquent\Collection;
 
 class GalleryRepository implements GalleryRepositoryInterface
 {
+    /**
+     * Get all galleries by profile
+     *
+     * @param integer $profileId
+     * @return Collection
+     */
     public function allByProfile(int $profileId): Collection
     {
         return Gallery::where('profile_id', $profileId)->latest()->get();
     }
 
+    /**
+     * Get specific gallery by profile
+     *
+     * @param integer $profileId
+     * @param integer $id
+     * @return Gallery|null
+     */
     public function find(int $profileId, int $id): ?Gallery
     {
         return Gallery::where('profile_id', $profileId)->find($id);
     }
 
+    /**
+     * Create specific gallery by profile
+     *
+     * @param integer $profileId
+     * @param array $data
+     * @return Gallery
+     */
     public function create(int $profileId, array $data): Gallery
     {
         $data['profile_id'] = $profileId;
         return Gallery::create($data);
     }
 
+    /**
+     * Update gallery by profile
+     *
+     * @param integer $profileId
+     * @param integer $id
+     * @param array $data
+     * @return Gallery|null
+     */
     public function update(int $profileId, int $id, array $data): ?Gallery
     {
         $item = $this->find($profileId, $id);
@@ -34,6 +62,13 @@ class GalleryRepository implements GalleryRepositoryInterface
         return $item->fresh();
     }
 
+    /**
+     * Delete gallery by profile
+     *
+     * @param integer $profileId
+     * @param integer $id
+     * @return boolean
+     */
     public function delete(int $profileId, int $id): bool
     {
         $item = $this->find($profileId, $id);

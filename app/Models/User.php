@@ -108,6 +108,11 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
+    public function profileTransactions()
+    {
+        return $this->hasManyThrough(Transaction::class, Profile::class);
+    }
+
     public function credits()
     {
         return $this->hasMany(Credit::class);
