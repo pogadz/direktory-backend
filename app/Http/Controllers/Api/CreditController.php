@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Credit;
 use App\Notifications\CreditToppedUp;
 use App\Services\Contracts\CreditServiceInterface;
 use App\Services\Contracts\ProfileServiceInterface;
@@ -32,6 +32,8 @@ class CreditController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('view', Credit::class);
+
         $user = $request->user();
 
         $credits = $user->credits()
@@ -47,7 +49,10 @@ class CreditController extends Controller
      */
     public function balance(Request $request)
     {
+        $this->authorize('balance', Credit::class);
+
         $user = $request->user();
+
         return response()->json([
             'balance' => $user->creditBalance(),
         ]);
@@ -66,11 +71,19 @@ class CreditController extends Controller
             'payment_method_type' => 'required|in:gcash,paymaya,card',
         ]);
 
+        $this->authorize('topUp', Credit::class);
+
         $user = $request->user();
         $amount = $request->amount;
 
         $profileId = app(ProfileServiceInterface::class)
             ->getActiveProfileId($user);
+
+        if (!$profileId) {
+            return response()->json([
+                'message' => 'No active profile found'
+            ], 403);
+        }
 
         // Bypass mode (for testing)
         if (config('services.paymongo.payment_bypass')) {
@@ -168,8 +181,10 @@ class CreditController extends Controller
             'amount' => 'required|integer|min:1',
         ]);
 
+        $this->authorize('refund', Credit::class);
+
         $user = $request->user();
-        $amount = $request->input('amount');
+        $amount = $request->amount;
 
         $transaction = $this->credit->refund($user, $amount);
 
