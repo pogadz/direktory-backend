@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\Credit;
 use App\Models\Transaction;
 use App\Enums\TransactionType;
 use App\Enums\TransactionStatus;
@@ -36,6 +35,25 @@ class CreditService implements CreditServiceInterface
             ]);
 
             return $transaction;
+        });
+    }
+
+    public function applyTopUp(User $user, int $amount, Transaction $transaction): void
+    {
+        DB::transaction(function () use ($user, $amount, $transaction) {
+
+            // ✅ Idempotency check (prevents double crediting)
+            if ($transaction->credits()->exists()) {
+                return;
+            }
+
+            // ✅ Create credit entry
+            $user->credits()->create([
+                'amount' => $amount,
+                'action_type' => CreditType::TOPUP,
+                'transaction_type' => TransactionType::PAYMENT,
+                'transaction_id' => $transaction->id,
+            ]);
         });
     }
 

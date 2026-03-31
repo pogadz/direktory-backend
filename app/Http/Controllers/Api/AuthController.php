@@ -20,6 +20,7 @@ class AuthController extends Controller
      * @unauthenticated
      * @bodyParam firstname string required Example: John
      * @bodyParam lastname string required Example: Walker
+     * @bodyParam phone string required Example: 9979457883
      * @bodyParam email string required Example: johnwalker@example.com
      * @bodyParam password string required Minimum 8 characters. Example: password123
      * @bodyParam password_confirmation string required Example: password123
@@ -29,6 +30,7 @@ class AuthController extends Controller
         $request->validate([
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
@@ -36,6 +38,7 @@ class AuthController extends Controller
         $user = User::create([
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
+            'phone' => $request->phone,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);

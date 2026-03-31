@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\CreditToppedUp;
 use App\Services\Contracts\CreditServiceInterface;
-use App\Services\ProfileService;
+use App\Services\Contracts\ProfileServiceInterface;
+use App\Services\Contracts\PaymentServiceInterface;
 use Illuminate\Http\Request;
 
 /**
@@ -14,11 +15,16 @@ use Illuminate\Http\Request;
  */
 class CreditController extends Controller
 {
-    protected CreditServiceInterface $creditService;
+    protected CreditServiceInterface $credit;
+    protected PaymentServiceInterface $payment;
 
-    public function __construct(CreditServiceInterface $creditService)
+    public function __construct(
+        CreditServiceInterface $creditService,
+        PaymentServiceInterface $paymentService
+    )
     {
-        $this->creditService = $creditService;
+        $this->credit = $creditService;
+        $this->payment = $paymentService;
     }
 
     /**
@@ -49,26 +55,107 @@ class CreditController extends Controller
 
     /**
      * Top up credits
+     * 
+     * @bodyParam amount integer required Example: 100
+     * @bodyParam payment_method_type string required Example: gcash
      */
     public function topUp(Request $request)
     {
         $request->validate([
             'amount' => 'required|integer|min:1',
+            'payment_method_type' => 'required|in:gcash,paymaya,card',
         ]);
 
         $user = $request->user();
-        $amount = $request->input('amount');
+        $amount = $request->amount;
 
-        $profileId = app(ProfileService::class)->getActiveProfileId($user);
-        $transaction = $this->creditService->topUp($user, $amount, null, $profileId);
-        $balance = $user->creditBalance();
+        $profileId = app(ProfileServiceInterface::class)
+            ->getActiveProfileId($user);
 
-        $user->notify(new CreditToppedUp($amount, $balance));
+        // Bypass mode (for testing)
+        if (config('services.paymongo.payment_bypass')) {
+            dd('testing');
 
+            $transaction = $this->credit->topUp($user, $amount, null, $profileId);
+            $balance = $user->creditBalance();
+
+            $user->notify(new CreditToppedUp($amount, $balance));
+
+            return response()->json([
+                'message' => 'Credits added successfully',
+                'transaction' => $transaction,
+                'balance' => $balance,
+            ]);
+        }
+
+        // Build billing from authenticated user
+        $billing = [
+            'name' => $user->firstname . ' ' . $user->lastname,
+            'email' => $user->email,
+            'phone' => $user->phone,
+        ];
+
+        if (!$billing['phone']) {
+            return response()->json([
+                'error' => 'User phone number is required'
+            ], 422);
+        }
+
+        // 1. Create Payment Intent
+        $intent = $this->payment->createPaymentIntent($amount);
+        $paymentIntentId = data_get($intent, 'data.id');
+
+        if (!$paymentIntentId) {
+            return response()->json([
+                'error' => 'Failed to create payment intent'
+            ], 500);
+        }
+
+        // 2. Create Transaction (pending)
+        $transaction = $user->transactions()->create([
+            'profile_id' => $profileId,
+            'type' => \App\Enums\TransactionType::PAYMENT,
+            'amount' => $amount,
+            'status' => \App\Enums\TransactionStatus::PENDING,
+            'payment_intent_id' => $paymentIntentId,
+        ]);
+
+        /**
+         * 3. Create Payment Method (uses billing from user)
+         */
+        $method = $this->payment->createPaymentMethod(
+            $request->payment_method_type,
+            $billing
+        );
+
+        $paymentMethodId = data_get($method, 'data.id');
+
+        if (!$paymentMethodId) {
+            return response()->json([
+                'error' => 'Failed to create payment method'
+            ], 500);
+        }
+
+        /**
+         * 4. Attach Payment Method
+         */
+        $attached = $this->payment->attachPaymentMethod(
+            $paymentIntentId,
+            $paymentMethodId
+        );
+
+        $status = data_get($attached, 'data.attributes.status');
+        $nextAction = data_get($attached, 'data.attributes.next_action');
+
+        /**
+         * 5. Return response (NO CREDIT YET — handled by webhook)
+         */
         return response()->json([
-            'message'     => 'Credits added successfully',
-            'transaction' => $transaction,
-            'balance'     => $balance,
+            'message' => 'Payment initiated',
+            'transaction_id' => $transaction->id,
+            'payment_intent_id' => $paymentIntentId,
+            'status' => $status,
+            'next_action' => $nextAction,
         ]);
     }
 
@@ -84,7 +171,7 @@ class CreditController extends Controller
         $user = $request->user();
         $amount = $request->input('amount');
 
-        $transaction = $this->creditService->refund($user, $amount);
+        $transaction = $this->credit->refund($user, $amount);
 
         return response()->json([
             'message' => 'Credits refunded successfully',

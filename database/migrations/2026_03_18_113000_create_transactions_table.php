@@ -20,9 +20,10 @@ return new class extends Migration
             $table->string('type'); // BOOKING, PAYMENT, REFUND
             $table->integer('amount'); // always positive
 
-            $table->string('status')->default('completed'); // pending, completed, failed
+            $table->string('status')->default('pending'); // pending, completed, failed
+            $table->string('payment_intent_id')->nullable()->index();
 
-            $table->nullableMorphs('reference'); // booking, payment, etc
+            $table->nullableMorphs('reference'); // booking and etc
 
             $table->timestamps();
         });

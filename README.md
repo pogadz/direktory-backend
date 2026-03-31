@@ -163,6 +163,17 @@ php artisan test
 php artisan test tests/Feature/AuthTest.php
 ```
 
+## Setting up ngrok for local payment webhook
+- Create ngrok account https://dashboard.ngrok.com/login
+- Install ngrok by following the setup installation in the account dashboard.
+- Then run the command
+```bash
+ngrok config add-authtoken your-token-here
+
+#and then
+ngrok http 80
+```
+
 ## Troubleshoot
 If you encounter disk space issue in docker just run the docker prune command and then rebuild.
 

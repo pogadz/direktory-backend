@@ -12,8 +12,7 @@ class UserDetail extends Model
         'profession',
         'status_emoji',
         'status_text',
-        'location',
-        'responseTime'
+        'location'
     ];
 
     /**

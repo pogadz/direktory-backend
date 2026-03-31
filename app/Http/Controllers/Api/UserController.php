@@ -58,16 +58,16 @@ class UserController extends Controller
         $validated = $request->validate([
             'firstname' => 'required|string|max:255',
             'lastname'  => 'required|string|max:255',
+            'phone'     => 'nullable|string|max:255',
             'avatar'       => 'nullable|string',
             'profession'   => 'nullable|string|max:255',
             'status_emoji' => 'nullable|string|max:10',
             'status_text'  => 'nullable|string|max:255',
             'location'     => 'nullable|string|max:255',
-            'responseTime' => 'nullable|string|max:255',
         ]);
 
-        $userData = $request->only(['firstname', 'lastname', 'email']);
-        $detailData = $request->only(['avatar', 'profession', 'status_emoji', 'status_text', 'location', 'responseTime']);
+        $userData = $request->only(['firstname', 'lastname', 'phone', 'email']);
+        $detailData = $request->only(['avatar', 'profession', 'status_emoji', 'status_text', 'location']);
 
         $updatedUser = $this->users->updateUserAndDetails($user->id, $userData, $detailData);
 

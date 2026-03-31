@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('status_emoji')->nullable();
             $table->string('status_text')->nullable();
             $table->string('location')->nullable();
-            $table->string('responseTime')->nullable();
             $table->timestamps();
         });
     }

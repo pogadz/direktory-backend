@@ -23,6 +23,15 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            \App\Services\Contracts\ProfileServiceInterface::class,
+            \App\Services\ProfileService::class
+        );
+
+        $this->app->bind(
+            \App\Repositories\Queries\ProfileRepository::class
+        );
+
+        $this->app->bind(
             \App\Repositories\Contracts\GalleryRepositoryInterface::class,
             \App\Repositories\Queries\GalleryRepository::class
         );
@@ -70,6 +79,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             \App\Repositories\Contracts\TransactionRepositoryInterface::class,
             \App\Repositories\Queries\TransactionRepository::class
+        );
+
+        $this->app->bind(
+            \App\Services\Contracts\PaymentServiceInterface::class,
+            \App\Services\PaymentService::class
         );
     }
 

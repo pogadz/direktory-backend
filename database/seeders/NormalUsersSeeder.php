@@ -30,6 +30,7 @@ class NormalUsersSeeder extends Seeder
                     'firstname'    => 'John',
                     'lastname'     => 'Doe',
                     'email'        => 'john.doe@example.com',
+                    'phone'        => '1234567890',
                     'profile_name' => "John's Workspace",
                     'role'         => 'worker',
                     'bio'          => 'Experienced handyman',
@@ -38,6 +39,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'Jane',
                     'lastname'     => 'Smith',
+                    'phone'        => '9876543210',
                     'email'        => 'jane.smith@example.com',
                     'profile_name' => "Jane's Profile",
                     'role'         => 'worker',
@@ -47,6 +49,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'Michael',
                     'lastname'     => 'Johnson',
+                    'phone'        => '5555555555',
                     'email'        => 'michael.johnson@example.com',
                     'profile_name' => "Michael's Workspace",
                     'role'         => 'worker',
@@ -56,6 +59,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'Emily',
                     'lastname'     => 'Brown',
+                    'phone'        => '1112223333',
                     'email'        => 'emily.brown@example.com',
                     'profile_name' => "Emily's Profile",
                     'role'         => 'worker',
@@ -65,6 +69,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'David',
                     'lastname'     => 'Wilson',
+                    'phone'        => '9998887777',
                     'email'        => 'david.wilson@example.com',
                     'profile_name' => "David's Workspace",
                     'role'         => 'worker',
@@ -74,6 +79,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'Sarah',
                     'lastname'     => 'Martinez',
+                    'phone'        => '4443332222',
                     'email'        => 'sarah.martinez@example.com',
                     'profile_name' => "Sarah's Profile",
                     'role'         => 'user',
@@ -83,6 +89,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'James',
                     'lastname'     => 'Anderson',
+                    'phone'        => '7776665555',
                     'email'        => 'james.anderson@example.com',
                     'profile_name' => "James's Workspace",
                     'role'         => 'user',
@@ -92,6 +99,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'Lisa',
                     'lastname'     => 'Taylor',
+                    'phone'        => '2221110000',
                     'email'        => 'lisa.taylor@example.com',
                     'profile_name' => "Lisa's Profile",
                     'role'         => 'user',
@@ -101,6 +109,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'Robert',
                     'lastname'     => 'Thomas',
+                    'phone'        => '8889990000',
                     'email'        => 'robert.thomas@example.com',
                     'profile_name' => "Robert's Workspace",
                     'role'         => 'worker',
@@ -110,6 +119,7 @@ class NormalUsersSeeder extends Seeder
                 [
                     'firstname'    => 'Jennifer',
                     'lastname'     => 'White',
+                    'phone'        => '3334445555',
                     'email'        => 'jennifer.white@example.com',
                     'profile_name' => "Jennifer's Profile",
                     'role'         => 'user',
@@ -124,6 +134,7 @@ class NormalUsersSeeder extends Seeder
                     [
                         'firstname' => $userData['firstname'],
                         'lastname'  => $userData['lastname'],
+                        'phone'     => $userData['phone'],
                         'password'  => $password,
                     ]
                 );

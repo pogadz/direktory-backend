@@ -14,6 +14,7 @@ class Transaction extends Model
         'status',
         'reference_type',
         'reference_id',
+        'payment_intent_id'
     ];
 
     const TYPE_BOOKING = 'booking';

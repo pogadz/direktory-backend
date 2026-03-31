@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PaymongoWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
@@ -226,4 +227,13 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
     Route::get('/manage/users', function () {
         return response()->json(['message' => 'User Management - requires edit or delete users permission']);
     });
+});
+
+// Paymongo webhook
+Route::post('/webhooks/paymongo', [PaymongoWebhookController::class, 'handle']);
+Route::get('/payment/success', function(){
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Payment successful',
+    ]);
 });
