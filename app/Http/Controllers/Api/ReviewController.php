@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\ReviewRepositoryInterface;
+use App\Models\Review;
 
 /**
  * @group Review
@@ -56,6 +57,8 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Review::class);
+
         $validated = $request->validate([
             'booking_id' => 'required|integer',
             'profile_id' => 'required|integer',
@@ -84,7 +87,7 @@ class ReviewController extends Controller
             'comment' => 'nullable|string'
         ]);
 
-        $review = $this->reviews->update($id, $validated);
+        $review = $this->reviews->findById($id);
 
         if (!$review) {
             return response()->json([
@@ -92,6 +95,10 @@ class ReviewController extends Controller
                 'message' => 'Review not found'
             ], 404);
         }
+
+        $this->authorize('update', $review);
+
+        $review = $this->reviews->update($id, $validated);
 
         return response()->json([
             'status' => true,

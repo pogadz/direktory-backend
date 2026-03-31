@@ -2,12 +2,10 @@
 
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\WorkerController;
-use App\Http\Controllers\Api\ProfileRoleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\JobCategoryController;
 use App\Http\Controllers\Api\JobSuggestionController;
 use App\Http\Controllers\Api\PermissionController;
-use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\DirectoryController;
@@ -88,13 +86,13 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         });
 
         // Profile Role
-        Route::prefix('{profile_id}/roles')->group(function () {
-            Route::get('/', [ProfileRoleController::class, 'index']);
-            Route::post('/assign', [ProfileRoleController::class, 'assign']);
-            Route::post('/revoke', [ProfileRoleController::class, 'revoke']);
-            Route::post('/sync', [ProfileRoleController::class, 'sync']);
-            Route::get('/permissions', [ProfileRoleController::class, 'permissions']);
-        });
+        // Route::prefix('{profile_id}/roles')->group(function () {
+        //     Route::get('/', [ProfileRoleController::class, 'index']);
+        //     Route::post('/assign', [ProfileRoleController::class, 'assign']);
+        //     Route::post('/revoke', [ProfileRoleController::class, 'revoke']);
+        //     Route::post('/sync', [ProfileRoleController::class, 'sync']);
+        //     Route::get('/permissions', [ProfileRoleController::class, 'permissions']);
+        // });
     });
 
     // Credits
@@ -183,20 +181,6 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
         Route::post('/', [JobCategoryController::class, 'store']);
         Route::put('/{id}', [JobCategoryController::class, 'update']);
         Route::delete('/{id}', [JobCategoryController::class, 'destroy']);
-    });
-
-    // Role Management
-    Route::prefix('roles')->group(function () {
-        Route::get('/', [RoleController::class, 'index']);
-        Route::post('/', [RoleController::class, 'store']);
-        Route::get('/{id}', [RoleController::class, 'show']);
-        Route::put('/{id}', [RoleController::class, 'update']);
-        Route::delete('/{id}', [RoleController::class, 'destroy']);
-
-        // Role-Permission Management
-        Route::post('/{id}/permissions/assign', [RoleController::class, 'assignPermissions']);
-        Route::post('/{id}/permissions/revoke', [RoleController::class, 'revokePermissions']);
-        Route::post('/{id}/permissions/sync', [RoleController::class, 'syncPermissions']);
     });
 
     // Permission Management

@@ -2,60 +2,90 @@
 
 namespace App\Policies;
 
+use Illuminate\Auth\Access\Response;
 use App\Models\Booking;
 use App\Models\User;
 use App\Services\ProfileService;
 
 class BookingPolicy
 {
+    /**
+     * All can view booking
+     */
     public function view(User $user, Booking $booking): bool
     {
         return true;
     }
 
-    public function create(User $user): bool
+    /**
+     * Only users can create booking
+     */
+    public function create(User $user)
     {
-        // Only users not currently acting as a profile can create bookings
-        return !app(ProfileService::class)->isUsingProfile($user);
+        return !app(ProfileService::class)->isUsingProfile($user)
+            ? Response::allow()
+            : Response::deny('Only users can create booking');
     }
 
-    public function update(User $user, Booking $booking): bool
+    /**
+     * Only users can update booking
+     */
+    public function update(User $user, Booking $booking)
     {
-        // Only user can update booking
-        return $booking->user_id === $user->id;
+        return $booking->user_id === $user->id
+            ? Response::allow()
+            : Response::deny('Only users can update booking');
     }
 
-    public function pending(User $user, Booking $booking): bool
+    /**
+     * Only users can set status pending
+     */
+    public function pending(User $user, Booking $booking)
     {
-        // Only user can set status pending
-        return $booking->user_id === $user->id;
+        return $booking->user_id === $user->id
+            ? Response::allow()
+            : Response::deny('Only users can set status pending');
     }
 
-    public function accepted(User $user, Booking $booking): bool
+    /**
+     * Only worker can set status accepted
+     */
+    public function accepted(User $user, Booking $booking)
     {
-        // Only the worker (profile owner) can accept booking
         $activeProfileId = app(ProfileService::class)->getActiveProfileId($user);
 
-        return $activeProfileId !== null && (int) $activeProfileId === (int) $booking->profile_id;
+        return $activeProfileId !== null && (int) $activeProfileId === (int) $booking->profile_id
+            ? Response::allow()
+            : Response::deny('Only worker can accept booking');
     }
 
-    public function completed(User $user, Booking $booking): bool
+    /**
+     * Only worker can set status completed
+     */
+    public function completed(User $user, Booking $booking)
     {
-        // Only the worker (profile owner) can complete booking
         $activeProfileId = app(ProfileService::class)->getActiveProfileId($user);
 
-        return $activeProfileId !== null && (int) $activeProfileId === (int) $booking->profile_id;
+        return $activeProfileId !== null && (int) $activeProfileId === (int) $booking->profile_id
+            ? Response::allow()
+            : Response::deny('Only worker can complete booking');
     }
 
-    public function cancelled(User $user, Booking $booking): bool
+    /**
+     * Only users can cancel booking
+     */
+    public function cancelled(User $user, Booking $booking)
     {
-        // Only the user can cancel booking
-        return $booking->user_id === $user->id;
+        return $booking->user_id === $user->id
+            ? Response::allow()
+            : Response::deny('Only users can cancel booking');
     }
 
+    /**
+     * No one can delete booking
+     */
     public function delete(User $user, Booking $booking): bool
     {
         return false;
     }
-
 }
