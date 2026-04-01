@@ -9,6 +9,7 @@ use App\Http\Middleware\ValidateApiRequest;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Broadcast;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             \Illuminate\Support\Facades\Route::middleware('web')
                 ->group(base_path('routes/admin.php'));
+            Broadcast::routes(['middleware' => ['auth:sanctum']]);
+            require base_path('routes/channels.php');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

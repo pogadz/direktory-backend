@@ -38,6 +38,21 @@ services:
     networks:
       - laravel
 
+  # Soketi WebSocket Server
+  soketi:
+    container_name: direktory-soketi
+    image: quay.io/soketi/soketi:latest-16-alpine
+    ports:
+      - "6001:6001"
+      - "9601:9601"
+    environment:
+      SOKETI_DEFAULT_APP_ID: ${PUSHER_APP_ID:-direktory-app}
+      SOKETI_DEFAULT_APP_KEY: ${PUSHER_APP_KEY:-direktory-key}
+      SOKETI_DEFAULT_APP_SECRET: ${PUSHER_APP_SECRET:-direktory-secret}
+      SOKETI_DEBUG: "0"
+    networks:
+      - laravel
+
 networks:
   laravel:
     driver: bridge

@@ -10,8 +10,17 @@ use App\Models\Transaction;
 use App\Services\Contracts\CreditServiceInterface;
 use App\Enums\TransactionStatus;
 
+/**
+ * @hideFromAPIDocumentation
+ */
 class PaymongoWebhookController extends Controller
 {
+    /**
+     * Handle Payment Webhook
+     *
+     * @param Request $request
+     * @return void
+     */
     public function handle(Request $request)
     {
         if (!$this->verifySignature($request)) {
@@ -40,7 +49,7 @@ class PaymongoWebhookController extends Controller
 
             try {
                 DB::transaction(function () use ($paymentIntentId) {
-
+                    // Find transaction
                     $transaction = Transaction::where('payment_intent_id', $paymentIntentId)
                         ->lockForUpdate()
                         ->first();
@@ -50,16 +59,16 @@ class PaymongoWebhookController extends Controller
                         return;
                     }
 
-                    // ✅ Idempotency: already processed
+                    // Idempotency: already processed
                     if ($transaction->status === TransactionStatus::SUCCESS) {
                         return;
                     }
 
-                    // ✅ Apply credits (idempotent inside service)
+                    // Apply credits (idempotent inside service)
                     app(CreditServiceInterface::class)
                         ->applyTopUp($transaction->user, $transaction->amount, $transaction);
 
-                    // ✅ Mark success
+                    // Mark success
                     $transaction->update([
                         'status' => TransactionStatus::SUCCESS,
                     ]);
@@ -100,6 +109,12 @@ class PaymongoWebhookController extends Controller
         return response()->json(['status' => 'ignored']);
     }
 
+    /**
+     * Verify Signature
+     *
+     * @param Request $request
+     * @return boolean
+     */
     protected function verifySignature(Request $request): bool
     {
         $signatureHeader = $request->header('Paymongo-Signature');

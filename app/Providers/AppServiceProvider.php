@@ -85,6 +85,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\Contracts\PaymentServiceInterface::class,
             \App\Services\PaymentService::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Contracts\MessageRepositoryInterface::class,
+            \App\Repositories\Queries\MessageRepository::class,
+        );
     }
 
     /**
@@ -93,5 +98,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Booking::class, BookingPolicy::class);
+        Gate::policy(Credit::class, CreditPolicy::class);
+        Gate::policy(Review::class, ReviewPolicy::class);
     }
 }

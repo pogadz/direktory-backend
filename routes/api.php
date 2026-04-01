@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymongoWebhookController;
+use App\Http\Controllers\Api\MessageController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes with rate limiting and API validation
@@ -157,6 +158,12 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1'])->group(func
         Route::get('/{profile_id}', [AvailabilityController::class, 'getAvailability']);
         Route::post('/', [AvailabilityController::class, 'saveAvailability']);
     });
+
+    // Chat
+    Route::get('/conversations', [MessageController::class, 'conversations']);
+    Route::post('/conversations/open', [MessageController::class, 'index']);
+    Route::post('/messages', [MessageController::class, 'store']);
+    Route::patch('/conversations/{conversation}/read', [MessageController::class, 'markRead']);
 });
 
 // Admin-only routes for managing Users
@@ -182,16 +189,6 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
         Route::put('/{id}', [JobCategoryController::class, 'update']);
         Route::delete('/{id}', [JobCategoryController::class, 'destroy']);
     });
-
-    // Permission Management
-    Route::prefix('permissions')->group(function () {
-        Route::get('/', [PermissionController::class, 'index']);
-        Route::get('/by-category', [PermissionController::class, 'indexByCategory']);
-        Route::post('/', [PermissionController::class, 'store']);
-        Route::get('/{id}', [PermissionController::class, 'show']);
-        Route::put('/{id}', [PermissionController::class, 'update']);
-        Route::delete('/{id}', [PermissionController::class, 'destroy']);
-    });
 });
 
 // Example: Protected routes using permission-based middleware
@@ -213,8 +210,20 @@ Route::middleware(['auth:sanctum', 'validate.api', 'throttle:60,1', 'permission:
     });
 });
 
+// // Chat
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::get('/conversations', [MessageController::class, 'conversations']);
+//     Route::get('/messages', [MessageController::class, 'index']);
+//     Route::post('/messages', [MessageController::class, 'store']);
+//     Route::patch('/conversations/{conversation}/read', [MessageController::class, 'markRead']);
+// });
+
 // Paymongo webhook
 Route::post('/webhooks/paymongo', [PaymongoWebhookController::class, 'handle']);
+
+/**
+ * @hideFromAPIDocumentation
+ */
 Route::get('/payment/success', function(){
     return response()->json([
         'status' => 'success',
