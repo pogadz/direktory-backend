@@ -69,6 +69,10 @@ class CreditController extends Controller
         $request->validate([
             'amount' => 'required|integer|min:1',
             'payment_method_type' => 'required|in:gcash,paymaya,card',
+            'card_number' => 'required_if:payment_method_type,card',
+            'exp_month' => 'required_if:payment_method_type,card',
+            'exp_year' => 'required_if:payment_method_type,card',
+            'cvc' => 'required_if:payment_method_type,card',
         ]);
 
         $this->authorize('topUp', Credit::class);
@@ -114,7 +118,7 @@ class CreditController extends Controller
             ], 422);
         }
 
-        // 1. Create Payment Intent
+        // Create Payment Intent
         $intent = $this->payment->createPaymentIntent($amount);
         $paymentIntentId = data_get($intent, 'data.id');
 
@@ -124,7 +128,7 @@ class CreditController extends Controller
             ], 500);
         }
 
-        // 2. Create Transaction (pending)
+        // Create Transaction (pending)
         $transaction = $user->transactions()->create([
             'profile_id' => $profileId,
             'type' => \App\Enums\TransactionType::PAYMENT,
@@ -133,25 +137,42 @@ class CreditController extends Controller
             'payment_intent_id' => $paymentIntentId,
         ]);
 
-        /**
-         * 3. Create Payment Method (uses billing from user)
-         */
+        // Prepare card details if payment method is CARD
+        $details = [];
+
+        if ($request->payment_method_type === 'card') {
+            $details = [
+                'card_number' => preg_replace('/\D/', '', $request->card_number),
+                'exp_month' => (int) $request->exp_month,
+                'exp_year' => (int) $request->exp_year,
+                'cvc' => $request->cvc,
+            ];
+        }
+
+        // Pass $details as 3rd parameter
         $method = $this->payment->createPaymentMethod(
             $request->payment_method_type,
-            $billing
+            $billing,
+            $details // required for card
         );
 
         $paymentMethodId = data_get($method, 'data.id');
 
         if (!$paymentMethodId) {
+            // Log PayMongo error response for debugging
+            \Log::error('PayMongo createPaymentMethod failed', [
+                'type' => $request->payment_method_type,
+                'billing' => $billing,
+                'details' => $details ?? null,
+                'full_response' => $method,
+            ]);
+
             return response()->json([
                 'error' => 'Failed to create payment method'
             ], 500);
         }
 
-        /**
-         * 4. Attach Payment Method
-         */
+        // Attach Payment Method
         $attached = $this->payment->attachPaymentMethod(
             $paymentIntentId,
             $paymentMethodId
@@ -160,9 +181,6 @@ class CreditController extends Controller
         $status = data_get($attached, 'data.attributes.status');
         $nextAction = data_get($attached, 'data.attributes.next_action');
 
-        /**
-         * 5. Return response (NO CREDIT YET — handled by webhook)
-         */
         return response()->json([
             'message' => 'Payment initiated',
             'transaction_id' => $transaction->id,
