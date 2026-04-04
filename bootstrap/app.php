@@ -1,15 +1,16 @@
 <?php
 
+use App\Http\Middleware\AuthenticateBroadcastRequest;
 use App\Http\Middleware\CheckAccountRole;
 use App\Http\Middleware\CheckAdminPermission;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\EnsureNoProfileSelected;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ValidateApiRequest;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Support\Facades\Broadcast;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,8 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             \Illuminate\Support\Facades\Route::middleware('web')
                 ->group(base_path('routes/admin.php'));
-            Broadcast::routes(['middleware' => ['auth:sanctum']]);
-            require base_path('routes/channels.php');
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -31,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission'     => CheckPermission::class,
             'user.only'      => EnsureNoProfileSelected::class,
             'admin.permission' => CheckAdminPermission::class,
+            'auth.broadcast' => AuthenticateBroadcastRequest::class,
         ]);
 
         $middleware->web(append: [

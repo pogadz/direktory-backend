@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Broadcast;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -100,5 +101,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Booking::class, BookingPolicy::class);
         Gate::policy(Credit::class, CreditPolicy::class);
         Gate::policy(Review::class, ReviewPolicy::class);
+
+        Broadcast::routes(['middleware' => ['auth.broadcast']]);
+        require base_path('routes/channels.php');
     }
 }
